@@ -67,17 +67,17 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tictest: ${OBJECTFILES}
 ${OBJECTDIR}/mcp2210.o: mcp2210.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 `pkg-config --cflags hidapi-hidraw` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mcp2210.o mcp2210.c
+	$(COMPILE.c) -O2 -Wall `pkg-config --cflags hidapi-hidraw` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mcp2210.o mcp2210.c
 
 ${OBJECTDIR}/tic12400.o: tic12400.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 `pkg-config --cflags hidapi-hidraw` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tic12400.o tic12400.c
+	$(COMPILE.c) -O2 -Wall `pkg-config --cflags hidapi-hidraw` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tic12400.o tic12400.c
 
 ${OBJECTDIR}/tictest.o: tictest.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 `pkg-config --cflags hidapi-hidraw` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tictest.o tictest.c
+	$(COMPILE.c) -O2 -Wall `pkg-config --cflags hidapi-hidraw` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tictest.o tictest.c
 
 # Subprojects
 .build-subprojects:

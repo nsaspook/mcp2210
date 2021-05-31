@@ -6,6 +6,7 @@
 
 #include "tic12400.h"
 #include "tictest.h"
+#include "mcp2210.h"
 
 /*
  * command structure data

@@ -78,18 +78,18 @@ int main(int argc, char* argv[])
 				SPI_WriteRead(S.handle, S.buf, S.rbuf);
 				sleep_us(fspeed);
 			}
-			if (get_MCP2210_ext_interrupt()) {
-				break;
-			}
+//			if (get_MCP2210_ext_interrupt()) {
+//				break;
+//			}
 			//lights up LED7 through LED0 one by one
 			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
 				S.buf[MCP23s08_DATA] = 0x80 >> i;
 				SPI_WriteRead(S.handle, S.buf, S.rbuf);
 				sleep_us(fspeed);
 			}
-			if (get_MCP2210_ext_interrupt()) {
-				break;
-			}
+//			if (get_MCP2210_ext_interrupt()) {
+//				break;
+//			}
 		}
 		/*
 		 * handle the TIC12400 chip MCP2210 SPI setting

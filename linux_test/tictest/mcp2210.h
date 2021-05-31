@@ -72,12 +72,6 @@ extern "C" {
 	void mcp23s08_update(void);
 	bool hidrawapi_mcp2210_init(void);
 
-	extern uint8_t buf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
-	extern uint8_t rbuf[RESPONSE_BUFFER_LENGTH]; // response buffer
-	extern int32_t res; // # of bytes sent from hid_read(), hid_write() functions
-
-	extern hid_device *handle; // handle of device returned by hid_open()
-	extern struct hid_device_info *devs, *cur_dev;
 	extern mcp2210_spi_type S;  // global MCP2210 I/O structure
 
 

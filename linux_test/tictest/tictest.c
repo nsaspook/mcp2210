@@ -74,8 +74,8 @@ int main(int argc, char* argv[])
 		for (int k = 0; k < 10; k++) {
 			//lights up LED0 through LED7 one by one
 			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
-				buf[MCP23s08_DATA] = 1 << i;
-				SPI_WriteRead(handle, buf, rbuf);
+				S.buf[MCP23s08_DATA] = 1 << i;
+				SPI_WriteRead(S.handle, S.buf, S.rbuf);
 				sleep_us(fspeed);
 			}
 			if (get_MCP2210_ext_interrupt()) {
@@ -83,8 +83,8 @@ int main(int argc, char* argv[])
 			}
 			//lights up LED7 through LED0 one by one
 			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
-				buf[MCP23s08_DATA] = 0x80 >> i;
-				SPI_WriteRead(handle, buf, rbuf);
+				S.buf[MCP23s08_DATA] = 0x80 >> i;
+				SPI_WriteRead(S.handle, S.buf, S.rbuf);
 				sleep_us(fspeed);
 			}
 			if (get_MCP2210_ext_interrupt()) {
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
 			fspeed = 2000;
 		}
 	}
-	hid_close(handle);
+	hid_close(S.handle);
 	hid_exit(); /* Free static HIDAPI objects. */
 	return 0;
 }

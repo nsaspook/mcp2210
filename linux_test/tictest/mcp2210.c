@@ -20,14 +20,14 @@ int32_t SendUSBCmd(hid_device *handle, uint8_t *cmdBuf, uint8_t *responseBuf)
 		return ERROR_UNABLE_TO_WRITE_TO_DEVICE;
 	}
 
-	//when the hid device is configured as synchronous, the first 
+	//when the hid device is configured as synchronous, the first
 	//hid_read returns the desired results. and the while() loop
 	//is skipped.
 	//
 	//when the hid device is configured as asynchronous, the first
 	//hid_read may or may not succeed, depending on the latency
 	//of the attached device. When no data is returned, r = 0 and
-	//the while loop keeps polling the returned data until it is 
+	//the while loop keeps polling the returned data until it is
 	//received.
 	r = hid_read(handle, responseBuf, RESPONSE_BUFFER_LENGTH);
 	if (r < 0) {
@@ -89,7 +89,7 @@ bool SPI_WriteRead(hid_device *handle, uint8_t *buf, uint8_t *rbuf)
 
 bool SPI_MCP2210_WriteRead(uint8_t* pTransmitData, const size_t txSize, uint8_t* pReceiveData, const size_t rxSize)
 {
-#ifdef DPRINT 
+#ifdef DPRINT
 	static uint32_t tx_count = 0;
 #endif
 

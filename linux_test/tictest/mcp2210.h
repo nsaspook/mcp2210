@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   mcp2210.h
  * Author: root
  *
@@ -29,6 +29,8 @@ extern "C" {
 #include "tictest.h"
 #include "tic12400.h"
 
+#define MCP2210_DRIVER "V0.2"
+
 #define MAX_STR 255
 #define OPERATION_SUCCESSFUL 0
 #define ERROR_UNABLE_TO_OPEN_DEVICE -1
@@ -41,36 +43,36 @@ extern "C" {
 
 #define SPI_STATUS_FINISHED_NO_DATA_TO_SEND 0x10
 #define SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE 0x20
-#define SPI_STATUS_SUCCESSFUL 0x30 
+#define SPI_STATUS_SUCCESSFUL 0x30
 
 #define MCP23s08_DATA 6
 #define MCP23s08_DATA_LEN 8
 
-    /*
-     * HIDAPI I/O structure
-     */
-    typedef struct {
-        hid_device *handle;
-        struct hid_device_info *devs, *cur_dev;
-        uint8_t buf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
-        uint8_t rbuf[RESPONSE_BUFFER_LENGTH]; // response buffer
-        int32_t res; // # of bytes sent from hid_read(), hid_write() functions
-    } mcp2210_spi_type;
+	/*
+	 * HIDAPI I/O structure
+	 */
+	typedef struct {
+		hid_device *handle;
+		struct hid_device_info *devs, *cur_dev;
+		uint8_t buf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
+		uint8_t rbuf[RESPONSE_BUFFER_LENGTH]; // response buffer
+		int32_t res; // # of bytes sent from hid_read(), hid_write() functions
+	} mcp2210_spi_type;
 
-    void cbufs();
-    int32_t SendUSBCmd(hid_device *, uint8_t *, uint8_t *);
-    void sleep_us(const uint32_t);
-    bool get_MCP2210_ext_interrupt(void);
-    int32_t cancel_spi_transfer(void);
-    bool SPI_WriteRead(hid_device *, uint8_t *, uint8_t *);
-    bool SPI_MCP2210_WriteRead(uint8_t* pTransmitData, const size_t txSize, uint8_t* pReceiveData, const size_t rxSize);
-    void setup_tic12400_transfer(void);
-    void get_tic12400_transfer(void);
-    void setup_mcp23s08_transfer(void);
-    void get_mcp23s08_transfer(void);
-    void mcp23s08_init(void);
-    void mcp23s08_update(void);
-    mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number);
+	void cbufs();
+	int32_t SendUSBCmd(hid_device *, uint8_t *, uint8_t *);
+	void sleep_us(const uint32_t);
+	bool get_MCP2210_ext_interrupt(void);
+	int32_t cancel_spi_transfer(void);
+	bool SPI_WriteRead(hid_device *, uint8_t *, uint8_t *);
+	bool SPI_MCP2210_WriteRead(uint8_t* pTransmitData, const size_t txSize, uint8_t* pReceiveData, const size_t rxSize);
+	void setup_tic12400_transfer(void);
+	void get_tic12400_transfer(void);
+	void setup_mcp23s08_transfer(void);
+	void get_mcp23s08_transfer(void);
+	void mcp23s08_init(void);
+	void mcp23s08_update(void);
+	mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number);
 
 
 #ifdef __cplusplus

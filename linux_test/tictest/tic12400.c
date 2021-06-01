@@ -45,7 +45,7 @@ const ticbuf_type setup1a = {
 const ticbuf_type setup1a_trigger = {
 	.wr = 1,
 	.addr = 0x1a,
-	.data = 0x0a00, // trigger and do config register CRC 
+	.data = 0x0a00, // trigger and do config register CRC
 	.par = 1,
 };
 const ticbuf_type setup22 = {

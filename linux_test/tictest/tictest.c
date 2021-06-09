@@ -24,10 +24,12 @@
  *******************************************************/
 
 #include "mcp2210.h"
+uint32_t fspeed = 20000; // led movement speed
+
+static void do_switch_state(void);
 
 int main(int argc, char* argv[])
 {
-	uint32_t fspeed = 20000; // led movement speed
 	mcp2210_spi_type* mcp2210;
 
 	/*
@@ -61,6 +63,11 @@ int main(int argc, char* argv[])
 		printf("tic12400_init failed\n");
 	}
 	get_MCP2210_ext_interrupt(); // read switch data
+	tic12400_read_sw(0, 0);
+	/*
+	 * setup program state using switch settings
+	 */
+	do_switch_state();
 
 	/*
 	 * we need to change SPI speed, mode, transfer size and cs as we switch to different devices.
@@ -99,7 +106,7 @@ int main(int argc, char* argv[])
 				sleep_us(fspeed);
 			}
 		}
-		if (get_MCP2210_ext_interrupt()||true) {
+		if (get_MCP2210_ext_interrupt()) {
 			/*
 			 * handle the TIC12400 chip MCP2210 SPI setting
 			 */
@@ -109,17 +116,22 @@ int main(int argc, char* argv[])
 			 */
 			tic12400_read_sw(0, 0);
 			/*
-			 * look for switch 0 changes
+			 * look for switch 0 changes for led speeds
 			 */
-			if (tic12400_get_sw() & raw_mask_0) {
-				fspeed = 20000;
-			} else {
-				fspeed = 2000;
-			}
+			do_switch_state();
 		}
 	}
 	hid_close(mcp2210->handle);
 	hid_exit(); /* Free static HIDAPI objects. */
 	return 0;
 
+}
+
+void do_switch_state(void)
+{
+	if (tic12400_get_sw() & raw_mask_0) {
+		fspeed = 20000;
+	} else {
+		fspeed = 2000;
+	}
 }

@@ -29,7 +29,7 @@ extern "C" {
 #include "tictest.h"
 #include "tic12400.h"
 
-#define MCP2210_DRIVER "V0.2"
+#define MCP2210_DRIVER "V0.5"
 
 #define MAX_STR 255
 #define OPERATION_SUCCESSFUL 0

@@ -24,9 +24,8 @@ extern "C" {
 	 * debugging print enable
 	 */
 	//#define DPRINT
-
-
-
+#define EXT_INT_DPRINT
+	
 #ifdef __cplusplus
 }
 #endif

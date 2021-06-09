@@ -4,6 +4,7 @@ static wchar_t wstr[MAX_STR]; // buffer for id settings strings from MPC2210
 
 static mcp2210_spi_type SPI_buffer; //  MCP2210 I/O structure
 static mcp2210_spi_type *S = &SPI_buffer; // working I/O structure pointer
+static const char *build_date = __DATE__, *build_time = __TIME__;
 
 void cbufs(void)
 {
@@ -60,11 +61,18 @@ void sleep_us(const uint32_t microseconds)
  */
 bool get_MCP2210_ext_interrupt(void)
 {
+#ifdef EXT_INT_DPRINT
+	static uint32_t counts = 0;
+#endif
+
 	cbufs();
 	S->buf[0] = 0x12; // Get (VM) the Current Number of Events From the Interrupt Pin, GPIO 6 FUNC2
 	S->buf[1] = 0x00; // reads, then resets the event counter
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 	if (S->rbuf[4] || S->rbuf[5]) {
+#ifdef EXT_INT_DPRINT
+		printf("rbuf4 %x: rbuf5 %x: counts %i\n", S->rbuf[4], S->rbuf[5], ++counts);
+#endif
 		return true;
 	}
 	return false;
@@ -126,10 +134,9 @@ bool SPI_MCP2210_WriteRead(uint8_t* pTransmitData, const size_t txSize, uint8_t*
  */
 mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 {
+	printf("\r\n--- Driver Version %s %s %s ---\r\n",MCP2210_DRIVER,build_date,build_time);
 	cbufs(); // clear command and response buffers
-
 	//------------------ Open MCP2210 and display info ---------------
-
 	printf("Open Device: 04d8:00de\n");
 	// Open the device using the VID(vendor ID, PID(product ID),
 	// and optionally the Serial number.
@@ -173,16 +180,27 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	hid_set_nonblocking(S->handle, 1); // async operation, don't block
 
 	//-------------- Set GPIO pin function (0x21) -------------
+	// configure chip selects and interrupts for all devices on the SPI buss
 	cbufs();
 	S->buf[0] = 0x21; // command 21 - set GPIO pin's functions
+	S->buf[4] = 0x01; // GPIO 0 set to 0x01 - SPI CS, 25LC020
+	S->buf[5] = 0x01; // GPIO 1 set to 0x01 - SPI CS, MCP3204 
+	S->buf[6] = 0x00; // GPIO 2
 	S->buf[7] = 0x02; // act led
+	S->buf[8] = 0x01; // GPIO 4 set to 0x01 - SPI CS, mcp23s08
+	S->buf[9] = 0x01; // GPIO 5 set to 0x01 - SPI CS, tic12400
+	S->buf[10] = 0x02; // GPIO 6 external interrupt input
+	S->buf[11] = 0x02; // GPIO 7 set to 0x01 - SPI CS, TC77
+	S->buf[12] = 0x00; // GPIO 8
+	S->buf[15] = 0b01000000; // set GPIO 6 to input
+	S->buf[17] = 0b00000010; // count Falling edges
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
 	// ------------ Set GPIO pin direction (0x32)--------------
 	cbufs();
 	S->buf[0] = 0x32; // command 32 - set GPIO pin's directions
 	// function:  0 = output, 1 = input
-	S->buf[4] = 0x00; // set GPIO 0-7 to outputs
+	S->buf[4] = 0b01000000; // set GPIO 0-5,7 to outputs, GPIO 6 for input
 	S->buf[5] = 0x00; // set GPIO 8 to output
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
@@ -198,6 +216,9 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	return S;
 }
 
+/*
+ * chip setup via SPI data transfers
+ */
 void mcp23s08_init(void)
 {
 	cbufs();
@@ -212,18 +233,6 @@ void mcp23s08_init(void)
 
 void setup_mcp23s08_transfer(void)
 {
-	//-------------- Set GPIO pin function (0x21) -------------
-	cbufs();
-	S->buf[0] = 0x21; // command 21 - set GPIO pin's functions
-	S->buf[7] = 0x02; // SPI act led
-	S->buf[4] = 0x01; // GPIO 0 set to 0x01 - SPI CS
-	S->buf[5] = 0x01; // GPIO 1 set to 0x01 - SPI CS
-	S->buf[8] = 0x01; // GPIO 4 set to 0x01 - SPI CS, mcp23s08
-	S->buf[9] = 0x01; // GPIO 5 set to 0x01 - SPI CS
-	S->buf[10] = 0x02; // GPIO 6 external interrupt input
-	S->buf[11] = 0x01; // GPIO 7 set to 0x01 - SPI CS
-	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
-
 	cbufs();
 	S->buf[0] = 0x40; // SPI transfer settings command
 	S->buf[4] = 0x40; // set SPI transfer bit rate;
@@ -241,17 +250,6 @@ void setup_mcp23s08_transfer(void)
 
 void setup_tic12400_transfer(void)
 {
-	cbufs();
-	S->buf[0] = 0x21; // command 21 - set GPIO pin's functions
-	S->buf[7] = 0x02; // SPI act led
-	S->buf[4] = 0x01; // GPIO 0 set to 0x01 - SPI CS
-	S->buf[5] = 0x01; // GPIO 1 set to 0x01 - SPI CS
-	S->buf[8] = 0x01; // GPIO 4 set to 0x01 - SPI CS
-	S->buf[9] = 0x01; // GPIO 5 set to 0x01 - SPI CS, tic12400
-	S->buf[10] = 0x02; // GPIO 6 external interrupt input
-	S->buf[11] = 0x01; // GPIO 7 set to 0x01 - SPI CS
-	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
-
 	cbufs();
 	S->buf[0] = 0x40; // SPI transfer settings command
 	S->buf[4] = 0x00; // set SPI transfer bit rate;

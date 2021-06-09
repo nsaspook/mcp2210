@@ -111,6 +111,10 @@ volatile bool tic12400_parity_status = false;
  * software reset of the chip using SPI
  * all registers set to their default values
  */
+
+/*
+ * chip setup via SPI data transfers
+ */
 void tic12400_reset(void)
 {
 	tic12400_wr(&ticreset1a, 4);
@@ -121,6 +125,10 @@ void tic12400_reset(void)
  * chip detection and configuration for all inputs with interrupts for
  * switch state changes with debounce
  * returns false on configuration failure
+ */
+
+/*
+ * chip setup via SPI data transfers
  */
 bool tic12400_init(void)
 {
@@ -148,11 +156,6 @@ bool tic12400_init(void)
 	}
 
 	tic12400_status = tic12400_wr(&ticdevid01, 0); // get device id, 0x01
-	/*
-	 * configure event handler for tic12400 interrupts
-	 */
-	//	EVIC_ExternalInterruptCallbackRegister(EXTERNAL_INT_2, tic12400_interrupt, 0);
-	//	EVIC_ExternalInterruptEnable(EXTERNAL_INT_2);
 
 fail:
 	return !tic12400_init_fail; // flip to return true if NO configuration failures
@@ -219,9 +222,7 @@ bool tic12400_parity(uint32_t v)
 }
 
 /*
- * external interrupt 2 ISR
  * switch SPI status and switch data updates
- * toggles debug led and clears interrupt by reading status
  * sets event flag for user application notification
  */
 void tic12400_read_sw(uint32_t a, uintptr_t b)
@@ -229,10 +230,7 @@ void tic12400_read_sw(uint32_t a, uintptr_t b)
 	tic12400_value = tic12400_wr(&ticread05, 0); // read switch
 	tic12400_status = tic12400_wr(&ticstat02, 0); // read status
 
-	//	RESET_LED_Toggle();
-
 	if (ticvalue->ssc && tic12400_parity(tic12400_value)) { // only trigger on switch state change
-		//		BSP_LED3_Toggle();
 		tic12400_event = true;
 		tic12400_value_counts++;
 	}

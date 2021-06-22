@@ -19,7 +19,7 @@
 	 buf[4] bit 5 = CS 5	TIC12400
 	 buf[4] bit 6 = FUNC2	Ext Interrupt counter
 	 buf[4] bit 7 = CS 7    temp chip CS
-	 buf[5] bit 0 = GPIO 8
+	 buf[5] bit 0 = GPIO 8  MC33996
 
  *******************************************************/
 

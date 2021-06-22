@@ -3,7 +3,7 @@
 static wchar_t wstr[MAX_STR]; // buffer for id settings strings from MPC2210
 
 static mcp2210_spi_type SPI_buffer; //  MCP2210 I/O structure
-static mcp2210_spi_type *S = &SPI_buffer; // working I/O structure pointer
+mcp2210_spi_type *S = &SPI_buffer; // working I/O structure pointer
 static const char *build_date = __DATE__, *build_time = __TIME__;
 
 void cbufs(void)
@@ -279,7 +279,7 @@ void get_mcp23s08_transfer(void)
 }
 
 /*
- * setup SPI command fir GPIO updates
+ * setup SPI command for GPIO updates
  */
 void mcp23s08_update(void)
 {

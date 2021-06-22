@@ -28,8 +28,9 @@ extern "C" {
 #include <hidapi/hidapi.h>
 #include "tictest.h"
 #include "tic12400.h"
+#include "mc33996.h"
 
-#define MCP2210_DRIVER "V0.5"
+#define MCP2210_DRIVER "V0.6"
 
 #define MAX_STR 255
 #define OPERATION_SUCCESSFUL 0

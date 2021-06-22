@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/mc33996.o \
 	${OBJECTDIR}/mcp2210.o \
 	${OBJECTDIR}/tic12400.o \
 	${OBJECTDIR}/tictest.o
@@ -63,6 +64,11 @@ LDLIBSOPTIONS=`pkg-config --libs hidapi-hidraw`
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tictest: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tictest ${OBJECTFILES} ${LDLIBSOPTIONS}
+
+${OBJECTDIR}/mc33996.o: mc33996.c
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -Wall `pkg-config --cflags hidapi-hidraw` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mc33996.o mc33996.c
 
 ${OBJECTDIR}/mcp2210.o: mcp2210.c
 	${MKDIR} -p ${OBJECTDIR}

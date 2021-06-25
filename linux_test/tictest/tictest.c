@@ -18,8 +18,8 @@
 	 buf[4] bit 4 = CS 4    MCP23S08
 	 buf[4] bit 5 = CS 5	TIC12400
 	 buf[4] bit 6 = FUNC2	Ext Interrupt counter
-	 buf[4] bit 7 = CS 7    temp chip CS
-	 buf[5] bit 0 = GPIO 8  MC33996
+	 buf[4] bit 7 = CS 7    MC33996
+	 buf[5] bit 0 = GPIO 8  input
 
  *******************************************************/
 
@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 	 */
 	tic12400_reset();
 	if (!tic12400_init()) {
-		printf("tic12400_init failed\n");
+		printf("tic12400_init failed code %i\n", tic12400_fail_value);
 	}
 	get_MCP2210_ext_interrupt(); // read switch data
 	tic12400_read_sw(0, 0);
@@ -76,15 +76,15 @@ int main(int argc, char* argv[])
 		/*
 		 * handle the MCP23S08 chip MCP2210 SPI setting
 		 */
-		setup_mcp23s08_transfer(); // CS 4 and mode 0
+		setup_mc33996_transfer(); // CS 7 and mode 1
 		/*
 		 * handle the MCP23S08 chip setting
 		 */
-		mcp23s08_init();
+		mc33996_init();
 		/*
 		 * SPI data to update the MCP23S08 outputs
 		 */
-		mcp23s08_update();
+		mc33996_update();
 
 		/*
 		 * light show sequence

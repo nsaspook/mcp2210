@@ -106,6 +106,7 @@ ticread_type *ticstatus = (ticread_type*) & tic12400_status;
 ticread_type *ticvalue = (ticread_type*) & tic12400_value;
 volatile bool tic12400_init_fail = false, tic12400_event = false; // chip error detection flag
 volatile bool tic12400_parity_status = false;
+volatile int32_t tic12400_fail_value = 0;
 
 /*
  * software reset of the chip using SPI
@@ -119,6 +120,7 @@ void tic12400_reset(void)
 {
 	tic12400_wr(&ticreset1a, 4);
 	tic12400_wr(&ticreset1a, 4);
+	tic12400_fail_value = 1;
 }
 
 /*
@@ -136,6 +138,7 @@ bool tic12400_init(void)
 
 	if ((ticstatus->data > por_bit) || !ticstatus->por) { // check for any high bits beyond POR bits set
 		tic12400_init_fail = true;
+		tic12400_fail_value = -1;
 		goto fail;
 	}
 
@@ -152,6 +155,7 @@ bool tic12400_init(void)
 
 	if (ticstatus->spi_fail) {
 		tic12400_init_fail = true;
+		tic12400_fail_value = -2;
 		goto fail;
 	}
 

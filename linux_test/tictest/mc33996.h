@@ -46,11 +46,6 @@ extern "C" {
 #define mc33996_load  0x040000
 #define mc33996_reset  0x180000
 
-	void mc33996_init(void);
-	void setup_mc33996_transfer(void);
-	void get_mc33996_transfer(void);
-	void mc33996_update(void);
-
 #ifdef __cplusplus
 }
 #endif

@@ -73,6 +73,10 @@ extern "C" {
 	void get_mcp23s08_transfer(void);
 	void mcp23s08_init(void);
 	void mcp23s08_update(void);
+	void mc33996_init(void);
+	void setup_mc33996_transfer(void);
+	void get_mc33996_transfer(void);
+	void mc33996_update(void);
 	mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number);
 
 

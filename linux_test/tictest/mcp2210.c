@@ -6,12 +6,19 @@ static mcp2210_spi_type SPI_buffer; //  MCP2210 I/O structure
 mcp2210_spi_type *S = &SPI_buffer; // working I/O structure pointer
 static const char *build_date = __DATE__, *build_time = __TIME__;
 
+/*
+ * zero rx/tx buffers
+ */
 void cbufs(void)
 {
 	memset(S->buf, 0, sizeof(S->buf)); // initialize bufs to zeros
 	memset(S->rbuf, 0, sizeof(S->rbuf));
 }
 
+/*
+ * send and receive USB data 
+ * using the asynchronous hid device mode for this driver
+ */
 int32_t SendUSBCmd(hid_device *handle, uint8_t *cmdBuf, uint8_t *responseBuf)
 {
 	int32_t r;
@@ -134,7 +141,7 @@ bool SPI_MCP2210_WriteRead(uint8_t* pTransmitData, const size_t txSize, uint8_t*
  */
 mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 {
-	printf("\r\n--- Driver Version %s %s %s ---\r\n",MCP2210_DRIVER,build_date,build_time);
+	printf("\r\n--- Driver Version %s %s %s ---\r\n", MCP2210_DRIVER, build_date, build_time);
 	cbufs(); // clear command and response buffers
 	//------------------ Open MCP2210 and display info ---------------
 	printf("Open Device: 04d8:00de\n");
@@ -183,15 +190,15 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	// configure chip selects and interrupts for all devices on the SPI buss
 	cbufs();
 	S->buf[0] = 0x21; // command 21 - set GPIO pin's functions
-	S->buf[4] = 0x01; // GPIO 0 set to 0x01 - SPI CS, 25LC020
-	S->buf[5] = 0x01; // GPIO 1 set to 0x01 - SPI CS, MCP3204 
+	S->buf[4] = 0x00; // GPIO 0 
+	S->buf[5] = 0x00; // GPIO 1
 	S->buf[6] = 0x00; // GPIO 2
 	S->buf[7] = 0x02; // act led
 	S->buf[8] = 0x01; // GPIO 4 set to 0x01 - SPI CS, mcp23s08
 	S->buf[9] = 0x01; // GPIO 5 set to 0x01 - SPI CS, tic12400
 	S->buf[10] = 0x02; // GPIO 6 external interrupt input
-	S->buf[11] = 0x02; // GPIO 7 set to 0x01 - SPI CS, TC77
-	S->buf[12] = 0x00; // GPIO 8
+	S->buf[11] = 0x01; // GPIO 7
+	S->buf[12] = 0x01; // GPIO 8 set to 0x01 - SPI CS, MC33996
 	S->buf[15] = 0b01000000; // set GPIO 6 to input
 	S->buf[17] = 0b00000010; // count Falling edges
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
@@ -201,7 +208,7 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	S->buf[0] = 0x32; // command 32 - set GPIO pin's directions
 	// function:  0 = output, 1 = input
 	S->buf[4] = 0b01000000; // set GPIO 0-5,7 to outputs, GPIO 6 for input
-	S->buf[5] = 0x00; // set GPIO 8 to output
+	S->buf[5] = 0x01; // set GPIO 8 to input
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
 	// ------------ Set GPIO pin level (0x30)--------------
@@ -299,3 +306,61 @@ void get_tic12400_transfer(void)
 	}
 	printf("\n");
 }
+
+/*
+ * config the SPI device to a default condition
+ */
+void mc33996_init(void)
+{
+	cbufs(); // clear the RX/TX buffer
+	// MCP33996 config
+	S->buf[0] = 0x42; // transfer SPI data command
+	S->buf[1] = 3; // no. of SPI bytes to transfer
+	S->buf[4] = 0x00; // on/off control
+	S->buf[5] = 0x00; // set all outputs to low
+	S->buf[6] = 0x00; // ""
+	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+};
+
+/*
+ * config the USB to SPI parameters for the slave device
+ */
+void setup_mc33996_transfer(void)
+{
+	cbufs();
+	S->buf[0] = 0x40; // SPI transfer settings command
+	S->buf[4] = 0x00; // set SPI transfer bit rate;
+	S->buf[5] = 0x09; // 32 bits, lsb = buf[4], msb buf[7]
+	S->buf[6] = 0x3d; // 4MHz
+	S->buf[7] = 0x00; // ""
+	S->buf[8] = 0xff; // set CS idle values to 1
+	S->buf[9] = 0x01; // ""
+	S->buf[10] = 0b01111111; // set CS active values to 0, set the rest to 1
+	S->buf[11] = 0b00000001; // ""
+	S->buf[18] = 0x03; // set no of bytes to transfer = 3
+	S->buf[20] = 0x01; // spi mode 1
+	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+};
+
+/*
+ * display to stdio the USB to SPI transfer parameters
+ */
+void get_mc33996_transfer(void)
+{
+	cbufs();
+	S->buf[0] = 0x41; // 0x41 Get SPI transfer settings
+	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	printf("SPI MC33996 transfer settings\n   "); // Print out the 0x41 returned buffer.
+	for (int i = 0; i < S->rbuf[2]; i++) {
+		printf("%02hhx ", S->rbuf[i]);
+	}
+	printf("\n");
+};
+
+/*
+ * setup SPI command sequence
+ */
+void mc33996_update(void)
+{
+	S->buf[4] = mc33996_control; // set MC33996 outputs command
+};

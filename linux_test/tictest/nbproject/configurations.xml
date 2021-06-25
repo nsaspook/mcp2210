@@ -16,7 +16,6 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>mc33996.c</itemPath>
       <itemPath>mcp2210.c</itemPath>
       <itemPath>tic12400.c</itemPath>
       <itemPath>tictest.c</itemPath>
@@ -46,8 +45,6 @@
           <standard>10</standard>
         </cTool>
       </compileType>
-      <item path="mc33996.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="mc33996.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="mcp2210.c" ex="false" tool="0" flavor2="0">
@@ -91,8 +88,6 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="mc33996.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="mc33996.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="mcp2210.c" ex="false" tool="0" flavor2="0">

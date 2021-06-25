@@ -56,6 +56,7 @@ extern volatile bool tic12400_init_fail, tic12400_event;
 extern ticread_type *ticstatus;
 extern ticread_type *ticvalue;
 extern volatile bool tic12400_parity_status;
+extern volatile int32_t	tic12400_fail_value;
 
 /* Provide C++ Compatibility */
 #ifdef __cplusplus

@@ -190,16 +190,17 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	// configure chip selects and interrupts for all devices on the SPI buss
 	cbufs();
 	S->buf[0] = 0x21; // command 21 - set GPIO pin's functions
-	S->buf[4] = 0x00; // GPIO 0 
+	S->buf[4] = 0x00; // GPIO 0
 	S->buf[5] = 0x00; // GPIO 1
 	S->buf[6] = 0x00; // GPIO 2
 	S->buf[7] = 0x02; // act led
 	S->buf[8] = 0x01; // GPIO 4 set to 0x01 - SPI CS, mcp23s08
 	S->buf[9] = 0x01; // GPIO 5 set to 0x01 - SPI CS, tic12400
 	S->buf[10] = 0x02; // GPIO 6 external interrupt input
-	S->buf[11] = 0x01; // GPIO 7
-	S->buf[12] = 0x01; // GPIO 8 set to 0x01 - SPI CS, MC33996
+	S->buf[11] = 0x01; // GPIO 7 set to 0x01 - SPI CS, MC33996
+	S->buf[12] = 0x00; // GPIO 8 
 	S->buf[15] = 0b01000000; // set GPIO 6 to input
+	S->buf[16] = 0b00000001; // set GPIO 8 to input
 	S->buf[17] = 0b00000010; // count Falling edges
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
@@ -208,7 +209,7 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	S->buf[0] = 0x32; // command 32 - set GPIO pin's directions
 	// function:  0 = output, 1 = input
 	S->buf[4] = 0b01000000; // set GPIO 0-5,7 to outputs, GPIO 6 for input
-	S->buf[5] = 0x01; // set GPIO 8 to input
+	S->buf[5] = 0b00000001; // set GPIO 8 to input
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
 	// ------------ Set GPIO pin level (0x30)--------------

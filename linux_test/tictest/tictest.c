@@ -93,6 +93,7 @@ int main(int argc, char* argv[])
 			//lights up LED0 through LED7 one by one
 			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
 				mcp2210->buf[MCP23s08_DATA] = 1 << i;
+				mcp2210->buf[MCP23s08_DATA-1] = 1 << i;
 				SPI_WriteRead(mcp2210->handle, mcp2210->buf, mcp2210->rbuf);
 				sleep_us(fspeed);
 			}
@@ -102,11 +103,12 @@ int main(int argc, char* argv[])
 			//lights up LED7 through LED0 one by one
 			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
 				mcp2210->buf[MCP23s08_DATA] = 0x80 >> i;
+				mcp2210->buf[MCP23s08_DATA-1] = 0x80 >> i;
 				SPI_WriteRead(mcp2210->handle, mcp2210->buf, mcp2210->rbuf);
 				sleep_us(fspeed);
 			}
 		}
-		if (get_MCP2210_ext_interrupt()) {
+//		if (get_MCP2210_ext_interrupt()) {
 			/*
 			 * handle the TIC12400 chip MCP2210 SPI setting
 			 */
@@ -119,7 +121,7 @@ int main(int argc, char* argv[])
 			 * look for switch 0 changes for led speeds
 			 */
 			do_switch_state();
-		}
+//		}
 	}
 	hid_close(mcp2210->handle);
 	hid_exit(); /* Free static HIDAPI objects. */
@@ -130,8 +132,8 @@ int main(int argc, char* argv[])
 void do_switch_state(void)
 {
 	if (tic12400_get_sw() & raw_mask_0) {
-		fspeed = 20000;
-	} else {
 		fspeed = 2000;
+	} else {
+		fspeed = 20000;
 	}
 }

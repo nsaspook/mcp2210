@@ -9,13 +9,13 @@
   The commands that this program uses configure the MCP2210's
   VM ram only. The NVM is left unchanged.
 
- *   -------------- connections to the MCP2210 for ADM00420 -----------------
+ *   -------------- connections to the MCP2210 for DIO board -----------------
 
-	 buf[4] bit 0 = CS 0    EEPROM CS
-	 buf[4] bit 1 = CS 1    MCP3204 CS pin
+	 buf[4] bit 0 = GPIO 0
+	 buf[4] bit 1 = GPIO 1
 	 buf[4] bit 2 = GPIO 2
 	 buf[4] bit 3 =	FUNC2	SPI ACTIVE LED
-	 buf[4] bit 4 = CS 4    MCP23S08
+	 buf[4] bit 4 = GPIO 4
 	 buf[4] bit 5 = CS 5	TIC12400
 	 buf[4] bit 6 = FUNC2	Ext Interrupt counter
 	 buf[4] bit 7 = CS 7    MC33996
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
 				sleep_us(fspeed);
 			}
 		}
-//		if (get_MCP2210_ext_interrupt()) {
+		if (get_MCP2210_ext_interrupt()) {
 			/*
 			 * handle the TIC12400 chip MCP2210 SPI setting
 			 */
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 			 * look for switch 0 changes for led speeds
 			 */
 			do_switch_state();
-//		}
+		}
 	}
 	hid_close(mcp2210->handle);
 	hid_exit(); /* Free static HIDAPI objects. */
@@ -132,8 +132,8 @@ int main(int argc, char* argv[])
 void do_switch_state(void)
 {
 	if (tic12400_get_sw() & raw_mask_0) {
-		fspeed = 2000;
-	} else {
 		fspeed = 20000;
+	} else {
+		fspeed = 2000;
 	}
 }

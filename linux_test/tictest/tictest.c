@@ -93,8 +93,10 @@ int main(int argc, char* argv[])
 			//lights up LED0 through LED7 one by one
 			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
 				mcp2210->buf[MCP23s08_DATA] = 1 << i;
-				mcp2210->buf[MCP23s08_DATA-1] = 1 << i;
+				mcp2210->buf[MCP23s08_DATA - 1] = 1 << i;
 				SPI_WriteRead(mcp2210->handle, mcp2210->buf, mcp2210->rbuf);
+//				sleep_us(10);
+//				SPI_WriteRead(mcp2210->handle, mcp2210->offbuf, mcp2210->rbuf);
 				sleep_us(fspeed);
 			}
 			//			if (get_MCP2210_ext_interrupt()) {
@@ -103,8 +105,10 @@ int main(int argc, char* argv[])
 			//lights up LED7 through LED0 one by one
 			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
 				mcp2210->buf[MCP23s08_DATA] = 0x80 >> i;
-				mcp2210->buf[MCP23s08_DATA-1] = 0x80 >> i;
+				mcp2210->buf[MCP23s08_DATA - 1] = 0x80 >> i;
 				SPI_WriteRead(mcp2210->handle, mcp2210->buf, mcp2210->rbuf);
+//				sleep_us(10);
+//				SPI_WriteRead(mcp2210->handle, mcp2210->offbuf, mcp2210->rbuf);
 				sleep_us(fspeed);
 			}
 		}

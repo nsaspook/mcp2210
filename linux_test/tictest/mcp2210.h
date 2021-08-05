@@ -48,7 +48,7 @@ extern "C" {
 
 #define MCP23s08_DATA 6
 #define MCP23s08_DATA_LEN 8
-
+	
 	/*
 	 * HIDAPI I/O structure
 	 */

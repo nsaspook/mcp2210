@@ -78,11 +78,11 @@ int main(int argc, char* argv[])
 		 */
 		setup_mc33996_transfer(); // CS 7 and mode 1
 		/*
-		 * handle the MCP23S08 chip setting
+		 * handle the MC33996 chip setting
 		 */
 		mc33996_init();
 		/*
-		 * SPI data to update the MCP23S08 outputs
+		 * SPI data to update the MC33996 outputs
 		 */
 		mc33996_update();
 
@@ -91,9 +91,9 @@ int main(int argc, char* argv[])
 		 */
 		for (int k = 0; k < 10; k++) {
 			//lights up LED0 through LED7 one by one
-			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
-				mcp2210->buf[MCP23s08_DATA] = 1 << i;
-				mcp2210->buf[MCP23s08_DATA-1] = 1 << i;
+			for (int i = 0; i < MC33996_DATA_LEN; i++) {
+				mcp2210->buf[MC33996_DATA] = 1 << i;
+				mcp2210->buf[MC33996_DATA-1] = 1 << i;
 				SPI_WriteRead(mcp2210->handle, mcp2210->buf, mcp2210->rbuf);
 				sleep_us(fspeed);
 			}
@@ -101,9 +101,9 @@ int main(int argc, char* argv[])
 			//				break;
 			//			}
 			//lights up LED7 through LED0 one by one
-			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
-				mcp2210->buf[MCP23s08_DATA] = 0x80 >> i;
-				mcp2210->buf[MCP23s08_DATA-1] = 0x80 >> i;
+			for (int i = 0; i < MC33996_DATA_LEN; i++) {
+				mcp2210->buf[MC33996_DATA] = 0x80 >> i;
+				mcp2210->buf[MC33996_DATA-1] = 0x80 >> i;
 				SPI_WriteRead(mcp2210->handle, mcp2210->buf, mcp2210->rbuf);
 				sleep_us(fspeed);
 			}

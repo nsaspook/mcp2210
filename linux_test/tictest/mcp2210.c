@@ -13,6 +13,7 @@ void cbufs(void)
 {
 	memset(S->buf, 0, sizeof(S->buf)); // initialize bufs to zeros
 	memset(S->rbuf, 0, sizeof(S->rbuf));
+	memset(S->offbuf, 0, sizeof(S->offbuf));
 }
 
 /*
@@ -364,4 +365,5 @@ void get_mc33996_transfer(void)
 void mc33996_update(void)
 {
 	S->buf[4] = mc33996_control; // set MC33996 outputs command
+	S->offbuf[4] = mc33996_control; // set MC33996 outputs command
 };

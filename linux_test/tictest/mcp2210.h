@@ -58,6 +58,7 @@ extern "C" {
 		uint8_t buf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
 		uint8_t rbuf[RESPONSE_BUFFER_LENGTH]; // response buffer
 		int32_t res; // # of bytes sent from hid_read(), hid_write() functions
+		uint8_t offbuf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
 	} mcp2210_spi_type;
 
 	void cbufs();

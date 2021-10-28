@@ -9,11 +9,8 @@
         <group>
             <file>file:/root/mcp2210/linux_test/tictest/mcp2210.c</file>
             <file>file:/root/mcp2210/linux_test/tictest/tictest.h</file>
-            <file>file:/root/mcp2210/linux_test/tictest/mc33996.h</file>
-            <file>file:/root/mcp2210/linux_test/tictest/mcp2210.h</file>
-            <file>file:/root/mcp2210/linux_test/tictest/tic12400.c</file>
             <file>file:/root/mcp2210/linux_test/tictest/tictest.c</file>
-            <file>file:/root/mcp2210/linux_test/tictest/tic12400.h</file>
+            <file>file:/root/mcp2210/linux_test/tictest/tic12400.c</file>
         </group>
     </open-files>
 </project-private>

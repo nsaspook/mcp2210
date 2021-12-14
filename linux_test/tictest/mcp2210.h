@@ -29,6 +29,7 @@ extern "C" {
 #include "tictest.h"
 #include "tic12400.h"
 #include "mc33996.h"
+#include "bmx160.h"
 
 #define MCP2210_DRIVER "V0.6"
 
@@ -70,10 +71,10 @@ extern "C" {
 	bool SPI_MCP2210_WriteRead(uint8_t* pTransmitData, const size_t txSize, uint8_t* pReceiveData, const size_t rxSize);
 	void setup_tic12400_transfer(void);
 	void get_tic12400_transfer(void);
-	void setup_mcp23s08_transfer(void);
-	void get_mcp23s08_transfer(void);
-	void mcp23s08_init(void);
-	void mcp23s08_update(void);
+	void setup_bmx160_transfer(void);
+	void get_bmx160_transfer(void);
+	void bmx160_init(void);
+	void bmx160_update(void);
 	void mc33996_init(void);
 	void setup_mc33996_transfer(void);
 	void get_mc33996_transfer(void);

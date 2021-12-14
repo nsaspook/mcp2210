@@ -15,11 +15,11 @@
 	 buf[4] bit 1 = GPIO 1
 	 buf[4] bit 2 = GPIO 2
 	 buf[4] bit 3 =	FUNC2	SPI ACTIVE LED
-	 buf[4] bit 4 = GPIO 4
+	 buf[4] bit 4 = FUNC2   LOWPWR led
 	 buf[4] bit 5 = CS 5	TIC12400
 	 buf[4] bit 6 = FUNC2	Ext Interrupt counter
 	 buf[4] bit 7 = CS 7    MC33996
-	 buf[5] bit 0 = GPIO 8  input
+	 buf[5] bit 0 = CS 8    BMX160
 
  *******************************************************/
 
@@ -49,6 +49,19 @@ int main(int argc, char* argv[])
 	}
 
 	cancel_spi_transfer(); // cleanup
+
+	/*
+	 * BMX160 testing
+	 */
+
+	setup_bmx160_transfer();
+	get_bmx160_transfer();
+
+	do {
+		bmx160_init();
+	} while (true);
+
+
 	/*
 	 * handle the TIC12400 chip MCP2210 SPI setting
 	 */
@@ -95,8 +108,8 @@ int main(int argc, char* argv[])
 				mcp2210->buf[MCP23s08_DATA] = 1 << i;
 				mcp2210->buf[MCP23s08_DATA - 1] = 1 << i;
 				SPI_WriteRead(mcp2210->handle, mcp2210->buf, mcp2210->rbuf);
-//				sleep_us(10);
-//				SPI_WriteRead(mcp2210->handle, mcp2210->offbuf, mcp2210->rbuf);
+				//				sleep_us(10);
+				//				SPI_WriteRead(mcp2210->handle, mcp2210->offbuf, mcp2210->rbuf);
 				sleep_us(fspeed);
 			}
 			//			if (get_MCP2210_ext_interrupt()) {
@@ -107,8 +120,8 @@ int main(int argc, char* argv[])
 				mcp2210->buf[MCP23s08_DATA] = 0x80 >> i;
 				mcp2210->buf[MCP23s08_DATA - 1] = 0x80 >> i;
 				SPI_WriteRead(mcp2210->handle, mcp2210->buf, mcp2210->rbuf);
-//				sleep_us(10);
-//				SPI_WriteRead(mcp2210->handle, mcp2210->offbuf, mcp2210->rbuf);
+				//				sleep_us(10);
+				//				SPI_WriteRead(mcp2210->handle, mcp2210->offbuf, mcp2210->rbuf);
 				sleep_us(fspeed);
 			}
 		}

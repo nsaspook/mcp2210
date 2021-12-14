@@ -194,14 +194,13 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	S->buf[4] = 0x00; // GPIO 0
 	S->buf[5] = 0x00; // GPIO 1
 	S->buf[6] = 0x00; // GPIO 2
-	S->buf[7] = 0x02; // act led
-	S->buf[8] = 0x01; // GPIO 4 set to 0x01 - SPI CS, mcp23s08
+	S->buf[7] = 0x02; // GPIO 3, act led
+	S->buf[8] = 0x02; // GPIO 4, LOWPWR led
 	S->buf[9] = 0x01; // GPIO 5 set to 0x01 - SPI CS, tic12400
 	S->buf[10] = 0x02; // GPIO 6 external interrupt input
 	S->buf[11] = 0x01; // GPIO 7 set to 0x01 - SPI CS, MC33996
-	S->buf[12] = 0x00; // GPIO 8 
+	S->buf[12] = 0x01; // GPIO 8 set to 0x01 - SPI CS, BMX160
 	S->buf[15] = 0b01000000; // set GPIO 6 to input
-	S->buf[16] = 0b00000001; // set GPIO 8 to input
 	S->buf[17] = 0b00000010; // count Falling edges
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
@@ -210,7 +209,7 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	S->buf[0] = 0x32; // command 32 - set GPIO pin's directions
 	// function:  0 = output, 1 = input
 	S->buf[4] = 0b01000000; // set GPIO 0-5,7 to outputs, GPIO 6 for input
-	S->buf[5] = 0b00000001; // set GPIO 8 to input
+	S->buf[5] = 0b00000000; // set GPIO 8 to output
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
 	// ------------ Set GPIO pin level (0x30)--------------
@@ -221,26 +220,26 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
 	cancel_spi_transfer(); // reset the SPI engine
-	printf("Ctrl c to exit\n"); // ctrl c to exit blink loop and exit program
+	printf("MCP2210 init complete\n"); // ctrl c to exit blink loop and exit program
 	return S;
 }
 
 /*
  * chip setup via SPI data transfers
  */
-void mcp23s08_init(void)
+void bmx160_init(void)
 {
 	cbufs();
 	// MCP23S08 config
 	S->buf[0] = 0x42; // transfer SPI data command
 	S->buf[1] = 3; // no. of SPI bytes to transfer
-	S->buf[4] = 0x40; //device address is 01000A1A0, write
-	S->buf[5] = 0x00; //write to IODIR register,
-	S->buf[6] = 0x00; //set all outputs to low
+	S->buf[4] = 0x7f | BMX160_R; //device address, read
+	S->buf[5] = 0x00;
+	S->buf[6] = 0x00;
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 }
 
-void setup_mcp23s08_transfer(void)
+void setup_bmx160_transfer(void)
 {
 	cbufs();
 	S->buf[0] = 0x40; // SPI transfer settings command
@@ -250,10 +249,10 @@ void setup_mcp23s08_transfer(void)
 	S->buf[7] = 0x00;
 	S->buf[8] = 0xff; // set CS idle values to 1
 	S->buf[9] = 0x01;
-	S->buf[10] = 0b11101111; // set CS active values to 0, set the rest to 1
-	S->buf[11] = 0b00000001;
+	S->buf[10] = 0b11111111; // set CS active values to 0, set the rest to 1
+	S->buf[11] = 0b11111110;
 	S->buf[18] = 0x03; // set no of bytes to transfer = 3
-	S->buf[20] = 0x00; // spi mode 0
+	S->buf[20] = 0x03; // spi mode 3
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 }
 
@@ -268,19 +267,19 @@ void setup_tic12400_transfer(void)
 	S->buf[8] = 0xff; // set CS idle values to 1
 	S->buf[9] = 0x01;
 	S->buf[10] = 0b11011111; // set CS active values to 0, set the rest to 1
-	S->buf[11] = 0b00000001;
+	S->buf[11] = 0b11111111;
 	S->buf[18] = 0x4; // set no of bytes to transfer = 4 // 32-bit transfers
 	S->buf[20] = 0x01; // spi mode 1
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 }
 
-void get_mcp23s08_transfer(void)
+void get_bmx160_transfer(void)
 {
 	// ---------- Get SPI transfer settings (0x41)-------------
 	cbufs();
 	S->buf[0] = 0x41; // 0x41 Get SPI transfer settings
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
-	printf("SPI MCP23S08 transfer settings\n   "); // Print out the 0x41 returned buffer.
+	printf("SPI BMX160 transfer settings\n   "); // Print out the 0x41 returned buffer.
 	for (int i = 0; i < S->rbuf[2]; i++) {
 		printf("%02hhx ", S->rbuf[i]);
 	}
@@ -290,7 +289,7 @@ void get_mcp23s08_transfer(void)
 /*
  * setup SPI command for GPIO updates
  */
-void mcp23s08_update(void)
+void bmx160_update(void)
 {
 	S->buf[4] = 0x40;
 	S->buf[5] = 0x0a;
@@ -338,7 +337,7 @@ void setup_mc33996_transfer(void)
 	S->buf[8] = 0xff; // set CS idle values to 1
 	S->buf[9] = 0x01; // ""
 	S->buf[10] = 0b01111111; // set CS active values to 0, set the rest to 1
-	S->buf[11] = 0b00000001; // ""
+	S->buf[11] = 0b11111111; // ""
 	S->buf[18] = 0x03; // set no of bytes to transfer = 3
 	S->buf[20] = 0x01; // spi mode 1
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);

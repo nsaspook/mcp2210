@@ -19,6 +19,7 @@ extern "C" {
 
 #define BMX160_R 0b10000000
 #define BMX160_W 0b00000000
+#define BMX160_ID	0xD8
 
 
 #ifdef __cplusplus

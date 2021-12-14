@@ -11,7 +11,7 @@
 
  *   -------------- connections to the MCP2210 for DIO board -----------------
 
-	 buf[4] bit 0 = GPIO 0
+	 buf[4] bit 0 = CS 0    BMX160
 	 buf[4] bit 1 = GPIO 1
 	 buf[4] bit 2 = GPIO 2
 	 buf[4] bit 3 =	FUNC2	SPI ACTIVE LED
@@ -19,7 +19,7 @@
 	 buf[4] bit 5 = CS 5	TIC12400
 	 buf[4] bit 6 = FUNC2	Ext Interrupt counter
 	 buf[4] bit 7 = CS 7    MC33996
-	 buf[5] bit 0 = CS 8    BMX160
+	 buf[5] bit 0 = GPIO 8  input
 
  *******************************************************/
 
@@ -31,6 +31,7 @@ static void do_switch_state(void);
 int main(int argc, char* argv[])
 {
 	mcp2210_spi_type* mcp2210;
+	uint8_t imu_id;
 
 	/*
 	 * init the hidraw device interface
@@ -51,16 +52,20 @@ int main(int argc, char* argv[])
 	cancel_spi_transfer(); // cleanup
 
 	/*
-	 * BMX160 testing
+	 * BMX160 IMU in SPI mode 3 testing
 	 */
 
-	setup_bmx160_transfer();
-	get_bmx160_transfer();
+	setup_bmx160_transfer(2); // 16-bit transfer, address and one data register
+	get_bmx160_transfer(); // display MCP2210 config registers
+	bmx160_init(2, 0); // toggle CS to set bmx160 SPI mode
+
+	if ((imu_id = bmx160_init(2, 0)) == BMX160_ID) {
+		printf("BMX160 IMU detected, Chip ID %02hhX .\n", imu_id);
+	}
 
 	do {
-		bmx160_init();
+		bmx160_init(2, 0);
 	} while (true);
-
 
 	/*
 	 * handle the TIC12400 chip MCP2210 SPI setting

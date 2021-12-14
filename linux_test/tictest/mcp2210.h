@@ -31,7 +31,7 @@ extern "C" {
 #include "mc33996.h"
 #include "bmx160.h"
 
-#define MCP2210_DRIVER "V0.6"
+#define MCP2210_DRIVER "V0.7"
 
 #define MAX_STR 255
 #define OPERATION_SUCCESSFUL 0
@@ -49,7 +49,7 @@ extern "C" {
 
 #define MCP23s08_DATA 6
 #define MCP23s08_DATA_LEN 8
-	
+
 	/*
 	 * HIDAPI I/O structure
 	 */
@@ -71,9 +71,9 @@ extern "C" {
 	bool SPI_MCP2210_WriteRead(uint8_t* pTransmitData, const size_t txSize, uint8_t* pReceiveData, const size_t rxSize);
 	void setup_tic12400_transfer(void);
 	void get_tic12400_transfer(void);
-	void setup_bmx160_transfer(void);
+	void setup_bmx160_transfer(uint8_t);
 	void get_bmx160_transfer(void);
-	void bmx160_init(void);
+	uint8_t bmx160_init(uint8_t, uint8_t);
 	void bmx160_update(void);
 	void mc33996_init(void);
 	void setup_mc33996_transfer(void);

@@ -179,19 +179,19 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	printf("\n");
 
 	// Read Indexed String 1
-	wstr[0] = 0x0000;
-	S->res = hid_get_indexed_string(S->handle, 1, wstr, MAX_STR);
-	if (S->res < 0) {
-		printf("Unable to read indexed string 1\n");
-	}
-	printf("Indexed String 1: %ls\n\n", wstr);
+	//	wstr[0] = 0x0000;
+	//	S->res = hid_get_indexed_string(S->handle, 1, wstr, MAX_STR);
+	//	if (S->res < 0) {
+	//		printf("Unable to read indexed string 1\n");
+	//	}
+	//	printf("Indexed String 1: %ls\n\n", wstr);
 	hid_set_nonblocking(S->handle, 1); // async operation, don't block
 
 	//-------------- Set GPIO pin function (0x21) -------------
 	// configure chip selects and interrupts for all devices on the SPI buss
 	cbufs();
 	S->buf[0] = 0x21; // command 21 - set GPIO pin's functions
-	S->buf[4] = 0x00; // GPIO 0
+	S->buf[4] = 0x01; // GPIO 0  set to 0x01 - SPI CS, BMX160
 	S->buf[5] = 0x00; // GPIO 1
 	S->buf[6] = 0x00; // GPIO 2
 	S->buf[7] = 0x02; // GPIO 3, act led
@@ -199,8 +199,11 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	S->buf[9] = 0x01; // GPIO 5 set to 0x01 - SPI CS, tic12400
 	S->buf[10] = 0x02; // GPIO 6 external interrupt input
 	S->buf[11] = 0x01; // GPIO 7 set to 0x01 - SPI CS, MC33996
-	S->buf[12] = 0x01; // GPIO 8 set to 0x01 - SPI CS, BMX160
+	S->buf[12] = 0x00; // GPIO 8
+	S->buf[13] = 0xff;
+	S->buf[14] = 0x01;
 	S->buf[15] = 0b01000000; // set GPIO 6 to input
+	S->buf[16] = 0b00000001; // 
 	S->buf[17] = 0b00000010; // count Falling edges
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
@@ -209,7 +212,7 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	S->buf[0] = 0x32; // command 32 - set GPIO pin's directions
 	// function:  0 = output, 1 = input
 	S->buf[4] = 0b01000000; // set GPIO 0-5,7 to outputs, GPIO 6 for input
-	S->buf[5] = 0b00000000; // set GPIO 8 to output
+	S->buf[5] = 0b00000001; // set GPIO 8 to input
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
 	// ------------ Set GPIO pin level (0x30)--------------
@@ -227,31 +230,32 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 /*
  * chip setup via SPI data transfers
  */
-void bmx160_init(void)
+uint8_t bmx160_init(uint8_t nbytes, uint8_t addr)
 {
 	cbufs();
-	// MCP23S08 config
+	// BMX160 config
 	S->buf[0] = 0x42; // transfer SPI data command
-	S->buf[1] = 3; // no. of SPI bytes to transfer
-	S->buf[4] = 0x7f | BMX160_R; //device address, read
+	S->buf[1] = nbytes; // no. of SPI bytes to transfer
+	S->buf[4] = addr | BMX160_R; //device address, read
 	S->buf[5] = 0x00;
 	S->buf[6] = 0x00;
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	return S->rbuf[5];
 }
 
-void setup_bmx160_transfer(void)
+void setup_bmx160_transfer(uint8_t nbytes)
 {
 	cbufs();
 	S->buf[0] = 0x40; // SPI transfer settings command
-	S->buf[4] = 0x40; // set SPI transfer bit rate;
-	S->buf[5] = 0x4b; // 32 bits, lsb = buf[4], msb buf[7]
-	S->buf[6] = 0x4c; // 5MHz
+	S->buf[4] = 0x00; // set SPI transfer bit rate;
+	S->buf[5] = 0x09; // 32 bits, lsb = buf[4], msb buf[7]
+	S->buf[6] = 0x3d; // 4MHz
 	S->buf[7] = 0x00;
 	S->buf[8] = 0xff; // set CS idle values to 1
 	S->buf[9] = 0x01;
-	S->buf[10] = 0b11111111; // set CS active values to 0, set the rest to 1
-	S->buf[11] = 0b11111110;
-	S->buf[18] = 0x03; // set no of bytes to transfer = 3
+	S->buf[10] = 0b11111110; // set CS active values to 0, set the rest to 1
+	S->buf[11] = 0b11111111;
+	S->buf[18] = nbytes; // set no of bytes to transfer = 3
 	S->buf[20] = 0x03; // spi mode 3
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 }

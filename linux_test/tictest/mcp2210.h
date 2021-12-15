@@ -76,6 +76,7 @@ extern "C" {
 	void get_tic12400_transfer(void);
 	void setup_bmx160_transfer(uint8_t);
 	void get_bmx160_transfer(void);
+	void show_bmx160_transfer(void);
 	uint8_t bmx160_init(uint8_t, uint8_t);
 	uint8_t bmx160_set(uint8_t, uint8_t);
 	void bmx160_update(void);

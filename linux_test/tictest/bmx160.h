@@ -17,9 +17,15 @@
 extern "C" {
 #endif
 
-#define BMX160_R 0b10000000
-#define BMX160_W 0b00000000
-#define BMX160_ID	0xD8
+#define BMX160_R                        0b10000000
+#define BMX160_W                        0b00000000
+#define BMX160_ID                       0xD8
+#define BMX160_CMD_ACCEL_PM_NORMAL      0x11
+#define BMX160_CMD_GYRO_PM_NORMAL       0x15
+#define BMX160_CMD_MAG_PM_NORMAL        0x19
+#define BMX160_ALL_PM_NORMAL            0x15
+#define BMX160_REG_CMD                  0x7E
+#define BMX160_REG_DUMMY                0x00
 
 
 #ifdef __cplusplus

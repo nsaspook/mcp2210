@@ -261,8 +261,8 @@ void setup_bmx160_transfer(uint8_t nbytes)
 	cbufs();
 	S->buf[0] = 0x40; // SPI transfer settings command
 	S->buf[4] = 0x00; // set SPI transfer bit rate;
-	S->buf[5] = 0x09; // 32 bits, lsb = buf[4], msb buf[7]
-	S->buf[6] = 0x3d; // 4MHz
+	S->buf[5] = 0x12; // 32 bits, lsb = buf[4], msb buf[7]
+	S->buf[6] = 0x7A; // 8MHz
 	S->buf[7] = 0x00;
 	S->buf[8] = 0xff; // set CS idle values to 1
 	S->buf[9] = 0x01;
@@ -301,6 +301,15 @@ void get_bmx160_transfer(void)
 		printf("%02hhx ", S->rbuf[i]);
 	}
 	printf("\n");
+}
+
+void show_bmx160_transfer(void)
+{
+	printf("SPI BMX160 IMU data   "); // Print out the 0x41 returned buffer.
+	for (int i = 5; i < 28; i++) {
+		printf("%02hhx ", S->rbuf[i]);
+	}
+	printf("\r");
 }
 
 /*

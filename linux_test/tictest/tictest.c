@@ -19,7 +19,7 @@
 	 buf[4] bit 5 = CS 5	TIC12400
 	 buf[4] bit 6 = FUNC2	Ext Interrupt counter
 	 buf[4] bit 7 = CS 7    MC33996
-	 buf[5] bit 0 = GPIO 8  input
+	 buf[5] bit 0 = GPIO 8  input, jumper to CS 0
 
  *******************************************************/
 
@@ -56,36 +56,44 @@ int main(int argc, char* argv[])
 	 * BMX160 IMU in SPI mode 3 testing
 	 */
 	req.tv_sec = 0;
-	req.tv_nsec = 5000000;
-
-	setup_bmx160_transfer(2); // 16-bit transfer, address and one data register
+	req.tv_nsec = 9000000;
+	nanosleep(&req, &rem);
+	setup_bmx160_transfer(2); // 2 byte transfer, address and one data register
 	get_bmx160_transfer(); // display MCP2210 config registers
-	bmx160_init(2, 0x00); // toggle CS to set bmx160 SPI mode
+	bmx160_init(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
+	//	bmx160_init(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
 
-	bmx160_set(0b00010010, 0x7e);
+	bmx160_set(BMX160_CMD_ACCEL_PM_NORMAL, BMX160_REG_CMD);
 	nanosleep(&req, &rem);
-	bmx160_init(2, 0x00); // toggle CS to set bmx160 SPI mode
-	bmx160_set(0b00010110, 0x7e);
-	nanosleep(&req, &rem);
-	nanosleep(&req, &rem);
+	bmx160_init(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
+	bmx160_set(BMX160_CMD_GYRO_PM_NORMAL, BMX160_REG_CMD);
 	nanosleep(&req, &rem);
 	nanosleep(&req, &rem);
-	bmx160_init(2, 0x00); // toggle CS to set bmx160 SPI mode
-	bmx160_set(0b00011010, 0x7e);
 	nanosleep(&req, &rem);
-	bmx160_init(2, 0x00); // toggle CS to set bmx160 SPI mode
+	nanosleep(&req, &rem);
+	bmx160_init(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
+	bmx160_set(BMX160_CMD_MAG_PM_NORMAL, BMX160_REG_CMD);
+	nanosleep(&req, &rem);
+	bmx160_init(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
 
 	if ((imu_id = bmx160_init(2, 0x00)) == BMX160_ID) {
 		imu_status = bmx160_init(2, 0x03); // read power status
 		imu_status = bmx160_init(2, 0x03); // read power status
 		printf("BMX160 IMU detected, Chip ID %02hhX, Chip Status %02hhX.\n", imu_id, imu_status);
+		if (imu_status == BMX160_ALL_PM_NORMAL) {
+			printf("BMX160 IMU Sensors All Operational.\n");
+		} else {
+			printf("BMX160 IMU Sensors Not Ready.\n");
+		}
 	} else {
 		printf("BMX160 IMU NOT detected, Chip ID %02hhX.\n", imu_id);
 	}
 
+	setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
 	do {
 		nanosleep(&req, &rem);
-		bmx160_init(2, 0x03);
+		bmx160_init(24, 0x04);
+		show_bmx160_transfer();
 	} while (true);
 
 	/*

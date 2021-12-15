@@ -25,13 +25,14 @@
 
 #include "mcp2210.h"
 uint32_t fspeed = 20000; // led movement speed
+struct timespec req, rem;
 
 static void do_switch_state(void);
 
 int main(int argc, char* argv[])
 {
 	mcp2210_spi_type* mcp2210;
-	uint8_t imu_id;
+	uint8_t imu_id, imu_status;
 
 	/*
 	 * init the hidraw device interface
@@ -54,17 +55,37 @@ int main(int argc, char* argv[])
 	/*
 	 * BMX160 IMU in SPI mode 3 testing
 	 */
+	req.tv_sec = 0;
+	req.tv_nsec = 5000000;
 
 	setup_bmx160_transfer(2); // 16-bit transfer, address and one data register
 	get_bmx160_transfer(); // display MCP2210 config registers
-	bmx160_init(2, 0); // toggle CS to set bmx160 SPI mode
+	bmx160_init(2, 0x00); // toggle CS to set bmx160 SPI mode
 
-	if ((imu_id = bmx160_init(2, 0)) == BMX160_ID) {
-		printf("BMX160 IMU detected, Chip ID %02hhX .\n", imu_id);
+	bmx160_set(0b00010010, 0x7e);
+	nanosleep(&req, &rem);
+	bmx160_init(2, 0x00); // toggle CS to set bmx160 SPI mode
+	bmx160_set(0b00010110, 0x7e);
+	nanosleep(&req, &rem);
+	nanosleep(&req, &rem);
+	nanosleep(&req, &rem);
+	nanosleep(&req, &rem);
+	bmx160_init(2, 0x00); // toggle CS to set bmx160 SPI mode
+	bmx160_set(0b00011010, 0x7e);
+	nanosleep(&req, &rem);
+	bmx160_init(2, 0x00); // toggle CS to set bmx160 SPI mode
+
+	if ((imu_id = bmx160_init(2, 0x00)) == BMX160_ID) {
+		imu_status = bmx160_init(2, 0x03); // read power status
+		imu_status = bmx160_init(2, 0x03); // read power status
+		printf("BMX160 IMU detected, Chip ID %02hhX, Chip Status %02hhX.\n", imu_id, imu_status);
+	} else {
+		printf("BMX160 IMU NOT detected, Chip ID %02hhX.\n", imu_id);
 	}
 
 	do {
-		bmx160_init(2, 0);
+		nanosleep(&req, &rem);
+		bmx160_init(2, 0x03);
 	} while (true);
 
 	/*

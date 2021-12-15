@@ -25,6 +25,7 @@ extern "C" {
 #include <wchar.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #include <hidapi/hidapi.h>
 #include "tictest.h"
 #include "tic12400.h"
@@ -50,6 +51,8 @@ extern "C" {
 #define MCP23s08_DATA 6
 #define MCP23s08_DATA_LEN 8
 
+	int nanosleep(const struct timespec *req, struct timespec *rem);
+
 	/*
 	 * HIDAPI I/O structure
 	 */
@@ -74,6 +77,7 @@ extern "C" {
 	void setup_bmx160_transfer(uint8_t);
 	void get_bmx160_transfer(void);
 	uint8_t bmx160_init(uint8_t, uint8_t);
+	uint8_t bmx160_set(uint8_t, uint8_t);
 	void bmx160_update(void);
 	void mc33996_init(void);
 	void setup_mc33996_transfer(void);

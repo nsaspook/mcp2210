@@ -243,6 +243,19 @@ uint8_t bmx160_init(uint8_t nbytes, uint8_t addr)
 	return S->rbuf[5];
 }
 
+uint8_t bmx160_set(uint8_t set_data, uint8_t addr)
+{
+	cbufs();
+	// BMX160 config
+	S->buf[0] = 0x42; // transfer SPI data command
+	S->buf[1] = 2; // no. of SPI bytes to transfer
+	S->buf[4] = addr | BMX160_W; //device address, write
+	S->buf[5] = set_data;
+	S->buf[6] = 0x00;
+	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	return S->rbuf[5];
+}
+
 void setup_bmx160_transfer(uint8_t nbytes)
 {
 	cbufs();

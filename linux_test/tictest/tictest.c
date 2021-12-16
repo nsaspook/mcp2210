@@ -56,28 +56,50 @@ int main(int argc, char* argv[])
 	 * BMX160 IMU in SPI mode 3 testing
 	 */
 	req.tv_sec = 0;
-	req.tv_nsec = 9000000;
-	nanosleep(&req, &rem);
+	req.tv_nsec = ns_10ms;
 	setup_bmx160_transfer(2); // 2 byte transfer, address and one data register
 	get_bmx160_transfer(); // display MCP2210 config registers
 	bmx160_init(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
-	//	bmx160_init(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
-
-	bmx160_set(BMX160_CMD_ACCEL_PM_NORMAL, BMX160_REG_CMD);
-	nanosleep(&req, &rem);
-	bmx160_init(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
-	bmx160_set(BMX160_CMD_GYRO_PM_NORMAL, BMX160_REG_CMD);
-	nanosleep(&req, &rem);
-	nanosleep(&req, &rem);
-	nanosleep(&req, &rem);
-	nanosleep(&req, &rem);
-	bmx160_init(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
-	bmx160_set(BMX160_CMD_MAG_PM_NORMAL, BMX160_REG_CMD);
-	nanosleep(&req, &rem);
-	bmx160_init(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
+	// check for bmx160 boot status and configure if needed
+	imu_status = bmx160_init(2, 0x03); // read power status
+	if (imu_status == BMX160_ALL_PM_NORMAL) {
+		printf("BMX160 IMU Sensors All Normal.\n");
+	} else {
+		printf("BMX160 IMU Sensors Configuration Started. Status: %02hhX\n", imu_status);
+		bmx160_set(BMX160_CMD_ACCEL_PM_NORMAL, BMX160_REG_CMD);
+		req.tv_nsec = ns_5ms;
+		nanosleep(&req, &rem);
+		bmx160_set(BMX160_CMD_GYRO_PM_NORMAL, BMX160_REG_CMD);
+		req.tv_nsec = ns_100ms;
+		nanosleep(&req, &rem);
+		bmx160_set(BMX160_CMD_MAG_PM_NORMAL, BMX160_REG_CMD);
+		req.tv_nsec = ns_2ms;
+		nanosleep(&req, &rem);
+		bmx160_set(0x80, 0x4C); // BMX160 2.4.3.1.3 Configuration Example
+		bmx160_set(0x01, 0x4F);
+		bmx160_set(0x4B, 0x4E);
+		bmx160_set(0x01, 0x4F);
+		bmx160_set(0x51, 0x4E);
+		bmx160_set(0x0E, 0x4F);
+		bmx160_set(0x52, 0x4E);
+		bmx160_set(0x02, 0x4F);
+		bmx160_set(0x4C, 0x4E);
+		bmx160_set(0x42, 0x4D);
+		bmx160_set(0x05, 0x44);
+		bmx160_set(0x00, 0x4C);
+		bmx160_set(BMX160_CMD_MAG_PM_NORMAL, BMX160_REG_CMD);
+		req.tv_nsec = ns_2ms;
+		nanosleep(&req, &rem);
+		imu_status = bmx160_init(2, 0x03); // read power status
+		printf("BMX160 IMU Sensors Configuration Complete Status: %02hhX.\n", imu_status);
+		if (bmx160_init(2, BMX160_NV_CONF) != BMX160_SPI_SET) {
+			bmx160_set(BMX160_SPI_SET, BMX160_NV_CONF);
+			bmx160_set(BMX160_SPI_4WIRE, BMX160_IF_CONF);
+			printf("BMX160 Interface set to SPI in NVRAM.\n");
+		}
+	}
 
 	if ((imu_id = bmx160_init(2, 0x00)) == BMX160_ID) {
-		imu_status = bmx160_init(2, 0x03); // read power status
 		imu_status = bmx160_init(2, 0x03); // read power status
 		printf("BMX160 IMU detected, Chip ID %02hhX, Chip Status %02hhX.\n", imu_id, imu_status);
 		if (imu_status == BMX160_ALL_PM_NORMAL) {
@@ -90,6 +112,7 @@ int main(int argc, char* argv[])
 	}
 
 	setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
+	req.tv_nsec = 1000000;
 	do {
 		nanosleep(&req, &rem);
 		bmx160_init(24, 0x04);

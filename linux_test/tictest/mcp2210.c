@@ -230,7 +230,7 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 /*
  * chip setup via SPI data transfers
  */
-uint8_t bmx160_init(uint8_t nbytes, uint8_t addr)
+uint8_t bmx160_get(uint8_t nbytes, uint8_t addr)
 {
 	cbufs();
 	// BMX160 config
@@ -316,6 +316,14 @@ void show_bmx160_transfer(void)
 		printf("%02hhx ", S->rbuf[i]);
 	}
 	printf("\r");
+}
+
+void move_bmx160_transfer(uint8_t *pBuf)
+{
+	for (int i = 5; i < 28; i++) {
+		pBuf[i - 5] = S->rbuf[i];
+
+	}
 }
 
 /*

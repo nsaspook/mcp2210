@@ -51,40 +51,41 @@ extern "C" {
 #define MCP23s08_DATA 6
 #define MCP23s08_DATA_LEN 8
 
-	int nanosleep(const struct timespec *req, struct timespec *rem);
+        int nanosleep(const struct timespec *req, struct timespec *rem);
 
-	/*
-	 * HIDAPI I/O structure
-	 */
-	typedef struct {
-		hid_device *handle;
-		struct hid_device_info *devs, *cur_dev;
-		uint8_t buf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
-		uint8_t rbuf[RESPONSE_BUFFER_LENGTH]; // response buffer
-		int32_t res; // # of bytes sent from hid_read(), hid_write() functions
-		uint8_t offbuf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
-	} mcp2210_spi_type;
+        /*
+         * HIDAPI I/O structure
+         */
+        typedef struct {
+                hid_device *handle;
+                struct hid_device_info *devs, *cur_dev;
+                uint8_t buf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
+                uint8_t rbuf[RESPONSE_BUFFER_LENGTH]; // response buffer
+                int32_t res; // # of bytes sent from hid_read(), hid_write() functions
+                uint8_t offbuf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
+        } mcp2210_spi_type;
 
-	void cbufs();
-	int32_t SendUSBCmd(hid_device *, uint8_t *, uint8_t *);
-	void sleep_us(const uint32_t);
-	bool get_MCP2210_ext_interrupt(void);
-	int32_t cancel_spi_transfer(void);
-	bool SPI_WriteRead(hid_device *, uint8_t *, uint8_t *);
-	bool SPI_MCP2210_WriteRead(uint8_t* pTransmitData, const size_t txSize, uint8_t* pReceiveData, const size_t rxSize);
-	void setup_tic12400_transfer(void);
-	void get_tic12400_transfer(void);
-	void setup_bmx160_transfer(uint8_t);
+        void cbufs();
+        int32_t SendUSBCmd(hid_device *, uint8_t *, uint8_t *);
+        void sleep_us(const uint32_t);
+        bool get_MCP2210_ext_interrupt(void);
+        int32_t cancel_spi_transfer(void);
+        bool SPI_WriteRead(hid_device *, uint8_t *, uint8_t *);
+        bool SPI_MCP2210_WriteRead(uint8_t* pTransmitData, const size_t txSize, uint8_t* pReceiveData, const size_t rxSize);
+        void setup_tic12400_transfer(void);
+        void get_tic12400_transfer(void);
+        void setup_bmx160_transfer(uint8_t);
 	void get_bmx160_transfer(void);
-	void show_bmx160_transfer(void);
-	uint8_t bmx160_init(uint8_t, uint8_t);
-	uint8_t bmx160_set(uint8_t, uint8_t);
-	void bmx160_update(void);
-	void mc33996_init(void);
-	void setup_mc33996_transfer(void);
-	void get_mc33996_transfer(void);
-	void mc33996_update(void);
-	mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number);
+        void show_bmx160_transfer(void);
+        void move_bmx160_transfer(uint8_t *);
+	uint8_t bmx160_get(uint8_t, uint8_t);
+        uint8_t bmx160_set(uint8_t, uint8_t);
+        void bmx160_update(void);
+        void mc33996_init(void);
+        void setup_mc33996_transfer(void);
+        void get_mc33996_transfer(void);
+        void mc33996_update(void);
+        mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number);
 
 
 #ifdef __cplusplus

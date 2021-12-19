@@ -25,15 +25,19 @@
 
 #include "mcp2210.h"
 uint32_t fspeed = 20000; // led movement speed
-struct timespec req, rem;
 sBmx160SensorData_t magn, gyro, accel;
+extern const char *build_date, *build_time;
+char fifo_buf[256];
 
 static void do_switch_state(void);
 
 int main(int argc, char* argv[])
 {
 	mcp2210_spi_type* mcp2210;
-	uint8_t imu_id, imu_status;
+	uint8_t imu_id, imu_status, data_status;
+
+	int pipefd;
+	char * myfifo = "/tmp/myfifo";
 
 	/*
 	 * init the hidraw device interface
@@ -53,13 +57,19 @@ int main(int argc, char* argv[])
 
 	cancel_spi_transfer(); // cleanup
 
+	/* remove the old FIFO */
+	unlink(myfifo);
+	/* create the FIFO (named pipe) */
+	mkfifo(myfifo, 0777);
+
+	/* Open the pipe. Just like you open a file */
+	pipefd = open(myfifo, O_RDWR);
+
 	/*
 	 * BMX160 IMU in SPI mode 3 testing
 	 */
-	req.tv_sec = 0;
-	req.tv_nsec = ns_10ms;
+	printf("\r--- BMX160 Driver Version %s %s %s ---\r\n", BMX160_DRIVER, build_date, build_time);
 	setup_bmx160_transfer(2); // 2 byte transfer, address and one data register
-//	get_bmx160_transfer(); // display MCP2210 config registers
 	bmx160_get(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
 	// check for bmx160 boot status and configure if needed
 	if ((imu_id = bmx160_get(2, BMX160_ID_REG)) == BMX160_ID) {
@@ -71,30 +81,26 @@ int main(int argc, char* argv[])
 			printf("BMX160 IMU Sensors Not Ready.\n");
 			printf("BMX160 IMU Sensors Configuration Started. Chip Power Status: %02hhX.\n", imu_status);
 			bmx160_set(BMX160_CMD_ACCEL_PM_NORMAL, BMX160_REG_CMD);
-			req.tv_nsec = ns_5ms;
-			nanosleep(&req, &rem);
+			sleep_us(us_5ms);
 			bmx160_set(BMX160_CMD_GYRO_PM_NORMAL, BMX160_REG_CMD);
-			req.tv_nsec = ns_100ms;
-			nanosleep(&req, &rem);
+			sleep_us(us_100ms);
 			bmx160_set(BMX160_CMD_MAG_PM_NORMAL, BMX160_REG_CMD);
-			req.tv_nsec = ns_2ms;
-			nanosleep(&req, &rem);
+			sleep_us(us_2ms);
 			// BMX160 2.4.3.1.3 magnetometer Configuration Example
 			bmx160_set(0x80, 0x4C); // mag_if0, setup mode
 			bmx160_set(0x01, 0x4F); // mag_if3, indirect write
 			bmx160_set(0x4B, 0x4E); // mag_if2, sleep mode
-			bmx160_set(0x17, 0x4F); // mag_if3, indirect write
-			bmx160_set(0x51, 0x4E); // mag_if2, high accuracy preset XY
-			bmx160_set(0x52, 0x4F); // mag_if3, indirect write
-			bmx160_set(0x52, 0x4E); // mag_if2, high accuracy preset Z
+			bmx160_set(0x04, 0x4F); // mag_if3, indirect write
+			bmx160_set(0x51, 0x4E); // mag_if2, regular preset XY
+			bmx160_set(0x0E, 0x4F); // mag_if3, indirect write
+			bmx160_set(0x52, 0x4E); // mag_if2, regular preset Z
 			bmx160_set(0x02, 0x4F); // mag_if3, data set
 			bmx160_set(0x4C, 0x4E); // mag_if2, data set
 			bmx160_set(0x42, 0x4D); // mag_if1, data set
 			bmx160_set(0x05, 0x44); // 12.5Hz pool rate
 			bmx160_set(0x00, 0x4C); // mag_if0, data mode
 			bmx160_set(BMX160_CMD_MAG_PM_NORMAL, BMX160_REG_CMD);
-			req.tv_nsec = ns_2ms;
-			nanosleep(&req, &rem);
+			sleep_us(us_2ms);
 			imu_status = bmx160_get(2, BMX160_PS_REG); // read power status
 			printf("BMX160 IMU Sensors Configuration Complete. Chip Status: %02hhX.\n", imu_status);
 			if (bmx160_get(2, BMX160_NV_CONF) != BMX160_SPI_SET) {
@@ -109,15 +115,20 @@ int main(int argc, char* argv[])
 
 	if ((imu_id == BMX160_ID) && (imu_status == BMX160_ALL_PM_NORMAL)) {
 		setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
-		req.tv_nsec = ns_5ms;
 		do {
-			nanosleep(&req, &rem);
+			sleep_us(us_10ms);
+			data_status = bmx160_get(2, BMX160_STATUS_REG);
 			bmx160_get(24, BMX160_DATA_REG);
 			//			show_bmx160_transfer();
 			getAllData(&magn, &gyro, &accel);
-			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f   \r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
+			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f  %02hhX  \r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z, data_status);
+			/* Write to the pipe */
+			sprintf(fifo_buf, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
+			write(pipefd, fifo_buf, sizeof(fifo_buf));
 		} while (true);
 	}
+
+	close(pipefd);
 
 	/*
 	 * handle the TIC12400 chip MCP2210 SPI setting

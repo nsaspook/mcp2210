@@ -24,15 +24,18 @@ extern "C" {
 #include <stdio.h>
 #include <wchar.h>
 #include <string.h>
-#include <stdlib.h>
+#include <fcntl.h>           /* Definition of AT_* constants */
+#include <unistd.h>
 #include <time.h>
+#include <sys/stat.h>
+#include <sys/types.h>        
 #include <hidapi/hidapi.h>
 #include "tictest.h"
 #include "tic12400.h"
 #include "mc33996.h"
 #include "bmx160.h"
 
-#define MCP2210_DRIVER "V0.7"
+#define MCP2210_DRIVER "V0.8"
 
 #define MAX_STR 255
 #define OPERATION_SUCCESSFUL 0
@@ -50,8 +53,6 @@ extern "C" {
 
 #define MCP23s08_DATA 6
 #define MCP23s08_DATA_LEN 8
-
-        int nanosleep(const struct timespec *req, struct timespec *rem);
 
         /*
          * HIDAPI I/O structure
@@ -75,10 +76,10 @@ extern "C" {
         void setup_tic12400_transfer(void);
         void get_tic12400_transfer(void);
         void setup_bmx160_transfer(uint8_t);
-	void get_bmx160_transfer(void);
+        void get_bmx160_transfer(void);
         void show_bmx160_transfer(void);
         void move_bmx160_transfer(uint8_t *);
-	uint8_t bmx160_get(uint8_t, uint8_t);
+        uint8_t bmx160_get(uint8_t, uint8_t);
         uint8_t bmx160_set(uint8_t, uint8_t);
         void bmx160_update(void);
         void mc33996_init(void);

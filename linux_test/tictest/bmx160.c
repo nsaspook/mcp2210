@@ -8,6 +8,9 @@
 float accelRange = BMX160_ACCEL_MG_LSB_2G * 9.8;
 float gyroRange = BMX160_GYRO_SENSITIVITY_250DPS;
 
+/*
+ * read raw data array and convert to usable vector data for each sensor
+ */
 void getAllData(sBmx160SensorData_t *magn, sBmx160SensorData_t *gyro, sBmx160SensorData_t *accel)
 {
 

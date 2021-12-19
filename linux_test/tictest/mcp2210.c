@@ -4,7 +4,7 @@ static wchar_t wstr[MAX_STR]; // buffer for id settings strings from MPC2210
 
 static mcp2210_spi_type SPI_buffer; //  MCP2210 I/O structure
 mcp2210_spi_type *S = &SPI_buffer; // working I/O structure pointer
-static const char *build_date = __DATE__, *build_time = __TIME__;
+const char *build_date = __DATE__, *build_time = __TIME__;
 
 /*
  * zero rx/tx buffers
@@ -142,7 +142,7 @@ bool SPI_MCP2210_WriteRead(uint8_t* pTransmitData, const size_t txSize, uint8_t*
  */
 mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 {
-	printf("\r\n--- Driver Version %s %s %s ---\r\n", MCP2210_DRIVER, build_date, build_time);
+	printf("\r\n--- MCP2210 Driver Version %s %s %s ---\r\n", MCP2210_DRIVER, build_date, build_time);
 	cbufs(); // clear command and response buffers
 	//------------------ Open MCP2210 and display info ---------------
 	printf("Open Device: 04d8:00de\n");
@@ -178,13 +178,6 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	printf("Serial Number String: (%d) %ls", wstr[0], wstr);
 	printf("\n");
 
-	// Read Indexed String 1
-	//	wstr[0] = 0x0000;
-	//	S->res = hid_get_indexed_string(S->handle, 1, wstr, MAX_STR);
-	//	if (S->res < 0) {
-	//		printf("Unable to read indexed string 1\n");
-	//	}
-	//	printf("Indexed String 1: %ls\n\n", wstr);
 	hid_set_nonblocking(S->handle, 1); // async operation, don't block
 
 	//-------------- Set GPIO pin function (0x21) -------------
@@ -223,12 +216,12 @@ mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number)
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 
 	cancel_spi_transfer(); // reset the SPI engine
-	printf("MCP2210 init complete\n"); // ctrl c to exit blink loop and exit program
+	printf("MCP2210 init complete\n"); // ctrl c to exit program
 	return S;
 }
 
 /*
- * chip setup via SPI data transfers
+ * read SPI data from BMX160 register
  */
 uint8_t bmx160_get(uint8_t nbytes, uint8_t addr)
 {
@@ -246,6 +239,9 @@ uint8_t bmx160_get(uint8_t nbytes, uint8_t addr)
 	return S->rbuf[5];
 }
 
+/*
+ * write SPI data to BMX160 register
+ */
 uint8_t bmx160_set(uint8_t set_data, uint8_t addr)
 {
 	cbufs();
@@ -262,13 +258,16 @@ uint8_t bmx160_set(uint8_t set_data, uint8_t addr)
 	return S->rbuf[5];
 }
 
+/*
+ * USB to SPI configuration for BMX160
+ */
 void setup_bmx160_transfer(uint8_t nbytes)
 {
 	cbufs();
 	S->buf[0] = 0x40; // SPI transfer settings command
 	S->buf[4] = 0x00; // set SPI transfer bit rate;
 	S->buf[5] = 0x09; // 32 bits, lsb = buf[4], msb buf[7]
-	S->buf[6] = 0x3d; // 4MHz
+	S->buf[6] = 0x3D; // 4MHz
 	S->buf[7] = 0x00;
 	S->buf[8] = 0xff; // set CS idle values to 1
 	S->buf[9] = 0x01;
@@ -309,6 +308,9 @@ void get_bmx160_transfer(void)
 	printf("\n");
 }
 
+/*
+ * read raw BMX160 sensor data array and print to stdio
+ */
 void show_bmx160_transfer(void)
 {
 	printf("SPI BMX160 IMU data   "); // Print out the 0x41 returned buffer.
@@ -318,11 +320,13 @@ void show_bmx160_transfer(void)
 	printf("\r");
 }
 
+/*
+ * get raw sensor data from IMU and transfer to buffer
+ */
 void move_bmx160_transfer(uint8_t *pBuf)
 {
 	for (int i = 5; i < 28; i++) {
 		pBuf[i - 5] = S->rbuf[i];
-
 	}
 }
 
@@ -361,6 +365,9 @@ void mc33996_init(void)
 	S->buf[5] = 0x00; // set all outputs to low
 	S->buf[6] = 0x00; // ""
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	while (S->rbuf[3] == SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE || S->rbuf[3] == SPI_STATUS_SUCCESSFUL) {
+		S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	}
 };
 
 /*

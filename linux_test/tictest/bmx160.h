@@ -14,12 +14,16 @@
 extern "C" {
 #endif
 
+#define BMX160_DRIVER "V0.2"        
+
 #define BMX160_R                        0b10000000
 #define BMX160_W                        0b00000000
 #define BMX160_ID                       0xD8
 #define BMX160_ID_REG                   0x00
+#define BMX160_ERROR_REG                0x02        
 #define BMX160_PS_REG                   0x03
 #define BMX160_DATA_REG                 0x04
+#define BMX160_STATUS_REG               0x1B
 #define BMX160_SPI_SET                  0x01
 #define BMX160_SPI_4WIRE                0x00
 #define BMX160_SPI_3WIRE                0x01
@@ -36,6 +40,10 @@ extern "C" {
 #define ns_100ms                        100000000
 #define ns_2ms                          2000000
 #define ns_5ms                          5000000
+#define us_10ms                         10000
+#define us_100ms                        100000
+#define us_2ms                          2000
+#define us_5ms                          5000
 
 #define BMX160_MAG_DATA_ADDR            0x04
 #define BMX160_GYRO_DATA_ADDR           0x0C

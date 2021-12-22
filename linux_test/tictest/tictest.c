@@ -34,7 +34,7 @@ static void do_switch_state(void);
 int main(int argc, char* argv[])
 {
 	mcp2210_spi_type* mcp2210;
-	uint8_t imu_id, imu_status, data_status;
+	uint8_t imu_id = 0, imu_status = 0, data_status, k = 0;
 
 	int pipefd;
 	char * myfifo = "/tmp/myfifo";
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 	/*
 	 * BMX160 IMU in SPI mode 3 testing
 	 */
-	printf("\r--- BMX160 Driver Version %s %s %s ---\r\n", BMX160_DRIVER, build_date, build_time);
+	printf("\r--- BMX160 Driver Version  %s %s %s ---\r\n", BMX160_DRIVER, build_date, build_time);
 	setup_bmx160_transfer(2); // 2 byte transfer, address and one data register
 	bmx160_get(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
 	// check for bmx160 boot status and configure if needed
@@ -115,6 +115,18 @@ int main(int argc, char* argv[])
 		printf("BMX160 IMU NOT detected, Bad Chip ID %02hhX.\n", imu_id);
 	}
 
+	/*
+	 * Check for proper mc33996 output chip SPI response
+	 */
+	printf("\r--- MC33996 Driver Version %s %s %s ---\r\n", MC33996_DRIVER, build_date, build_time);
+	setup_mc33996_transfer(6);
+	mc33996_set(mc33996_reset, mc33996_magic_h, mc33996_magic_l);
+	if (mc33996_check()) {
+		printf("MC33996 detected, Reset Magic Words Match.\n");
+	} else {
+		printf("MC33996 NOT detected. No or Wrong Magic Response.\n");
+	}
+
 	if ((imu_id == BMX160_ID) && (imu_status == BMX160_ALL_PM_NORMAL)) {
 		do {
 			setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
@@ -125,20 +137,17 @@ int main(int argc, char* argv[])
 			getAllData(&magn, &gyro, &accel);
 			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f  %02hhX  \r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z, data_status);
 			/* Write to the pipe */
-			sprintf(fifo_buf, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
+			snprintf(fifo_buf, 255, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
 			write(pipefd, fifo_buf, sizeof(fifo_buf));
 			/*
 			 * handle the MC33966 chip MCP2210 SPI setting
 			 */
-			setup_mc33996_transfer(); // CS 7 and mode 1
+			setup_mc33996_transfer(3);
 			/*
-			 * handle the MC33966 chip setting
+			 * send data to the output ports
 			 */
-			mc33996_init();
-			/*
-			 * SPI data to update the MC33966 outputs
-			 */
-			mc33996_update();
+			mc33996_set(mc33996_control, k, 0);
+			k++;
 		} while (true);
 	}
 
@@ -171,11 +180,11 @@ int main(int argc, char* argv[])
 		/*
 		 * handle the MC33966 chip MCP2210 SPI setting
 		 */
-		setup_mc33996_transfer(); // CS 7 and mode 1
+		setup_mc33996_transfer(3); // CS 7 and mode 1
 		/*
 		 * handle the MC33966 chip setting
 		 */
-		mc33996_init();
+		mc33996_set(mc33996_control, 0, 0);
 		/*
 		 * SPI data to update the MC33966 outputs
 		 */

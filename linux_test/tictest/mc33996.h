@@ -22,32 +22,36 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-	/*
-	 * MC33996 command structure
-	 */
-	typedef struct __attribute__((packed))
-	{
-		uint16_t out;
-		uint8_t cmd;
-	}
-	mc33996buf_type;
+#define MC33996_DRIVER "V0.3"   
 
-	/*
-	 * MC33996 response structure
-	 */
-	typedef struct __attribute__((packed))
-	{
-		uint16_t out_faults;
-		uint8_t faults;
-	}
-	mc33996read_type;
+        /*
+         * MC33996 command structure
+         */
+        typedef struct __attribute__((packed))
+        {
+                uint16_t out;
+                uint8_t cmd;
+        }
+        mc33996buf_type;
 
-#define mc33996_control     0x000000
-#define mc33996_load        0x040000
-#define mc33996_reset       0x180000
+        /*
+         * MC33996 response structure
+         */
+        typedef struct __attribute__((packed))
+        {
+                uint16_t out_faults;
+                uint8_t faults;
+        }
+        mc33996read_type;
 
-#define MC33996_DATA        6
-#define MC33996_DATA_LEN    8
+#define mc33996_control         0x00
+#define mc33996_load            0x04
+#define mc33996_reset           0x18
+#define mc33996_magic_h         0x19
+#define mc33996_magic_l         0x57       
+
+#define MC33996_DATA            6
+#define MC33996_DATA_LEN        8
 
 #ifdef __cplusplus
 }

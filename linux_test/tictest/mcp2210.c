@@ -371,9 +371,39 @@ void mc33996_init(void)
 };
 
 /*
+ * config the SPI device to a default condition
+ */
+void mc33996_set(uint8_t cmd, uint8_t data_h, uint8_t data_l)
+{
+	cbufs(); // clear the RX/TX buffer
+	// MCP33996 config
+	S->buf[0] = 0x42; // transfer SPI data command
+	S->buf[1] = 6; // no. of SPI bytes to transfer
+	S->buf[4] = cmd; // device command control
+	S->buf[5] = data_h; // set all outputs
+	S->buf[6] = data_l; // ""
+	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	while (S->rbuf[3] == SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE || S->rbuf[3] == SPI_STATUS_SUCCESSFUL) {
+		S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	}
+};
+
+/*
+ * check for correct 48-bit data from mc33996 after command reset
+ */
+bool mc33996_check(void)
+{
+	if (S->rbuf[7] == mc33996_reset && S->rbuf[8] == mc33996_magic_h && S->rbuf[9] == mc33996_magic_l) {
+		return true;
+	} else {
+		return false;
+	}
+};
+
+/*
  * config the USB to SPI parameters for the slave device
  */
-void setup_mc33996_transfer(void)
+void setup_mc33996_transfer(uint8_t len)
 {
 	cbufs();
 	S->buf[0] = 0x40; // SPI transfer settings command
@@ -385,7 +415,7 @@ void setup_mc33996_transfer(void)
 	S->buf[9] = 0x01; // ""
 	S->buf[10] = 0b01111111; // set CS active values to 0, set the rest to 1
 	S->buf[11] = 0b11111111; // ""
-	S->buf[18] = 0x03; // set no of bytes to transfer = 3
+	S->buf[18] = len; // set no of bytes to transfer = 3
 	S->buf[20] = 0x01; // spi mode 1
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 };

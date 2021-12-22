@@ -83,7 +83,9 @@ extern "C" {
         uint8_t bmx160_set(uint8_t, uint8_t);
         void bmx160_update(void);
         void mc33996_init(void);
-        void setup_mc33996_transfer(void);
+        bool mc33996_check(void);
+        void mc33996_set(uint8_t, uint8_t, uint8_t);
+        void setup_mc33996_transfer(uint8_t);
         void get_mc33996_transfer(void);
         void mc33996_update(void);
         mcp2210_spi_type* hidrawapi_mcp2210_init(const wchar_t *serial_number);

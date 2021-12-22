@@ -61,7 +61,7 @@ public class Cube {
             while (myReader.hasNextLine()) {
                 String line = myReader.nextLine();
                 String[] token = line.split(",");
-                double w = Double.parseDouble(token[2]);
+                double w = Double.parseDouble(token[0]);
                 double x = -Double.parseDouble(token[6]);
                 double y = -Double.parseDouble(token[7]);
                 double z = -Double.parseDouble(token[8]);

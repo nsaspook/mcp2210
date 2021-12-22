@@ -80,8 +80,10 @@ int main(int argc, char* argv[])
 		} else {
 			printf("BMX160 IMU Sensors Not Ready.\n");
 			printf("BMX160 IMU Sensors Configuration Started. Chip Power Status: %02hhX.\n", imu_status);
+			bmx160_set(0b00001000, 0x40);
 			bmx160_set(BMX160_CMD_ACCEL_PM_NORMAL, BMX160_REG_CMD);
 			sleep_us(us_5ms);
+			bmx160_set(0b00101000, 0x42);
 			bmx160_set(BMX160_CMD_GYRO_PM_NORMAL, BMX160_REG_CMD);
 			sleep_us(us_100ms);
 			bmx160_set(BMX160_CMD_MAG_PM_NORMAL, BMX160_REG_CMD);
@@ -90,9 +92,9 @@ int main(int argc, char* argv[])
 			bmx160_set(0x80, 0x4C); // mag_if0, setup mode
 			bmx160_set(0x01, 0x4F); // mag_if3, indirect write
 			bmx160_set(0x4B, 0x4E); // mag_if2, sleep mode
-			bmx160_set(0x04, 0x4F); // mag_if3, indirect write
+			bmx160_set(0x17, 0x4F); // mag_if3, indirect write
 			bmx160_set(0x51, 0x4E); // mag_if2, regular preset XY
-			bmx160_set(0x0E, 0x4F); // mag_if3, indirect write
+			bmx160_set(0x52, 0x4F); // mag_if3, indirect write
 			bmx160_set(0x52, 0x4E); // mag_if2, regular preset Z
 			bmx160_set(0x02, 0x4F); // mag_if3, data set
 			bmx160_set(0x4C, 0x4E); // mag_if2, data set
@@ -114,8 +116,8 @@ int main(int argc, char* argv[])
 	}
 
 	if ((imu_id == BMX160_ID) && (imu_status == BMX160_ALL_PM_NORMAL)) {
-		setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
 		do {
+			setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
 			sleep_us(us_10ms);
 			data_status = bmx160_get(2, BMX160_STATUS_REG);
 			bmx160_get(24, BMX160_DATA_REG);
@@ -125,6 +127,18 @@ int main(int argc, char* argv[])
 			/* Write to the pipe */
 			sprintf(fifo_buf, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
 			write(pipefd, fifo_buf, sizeof(fifo_buf));
+			/*
+			 * handle the MC33966 chip MCP2210 SPI setting
+			 */
+			setup_mc33996_transfer(); // CS 7 and mode 1
+			/*
+			 * handle the MC33966 chip setting
+			 */
+			mc33996_init();
+			/*
+			 * SPI data to update the MC33966 outputs
+			 */
+			mc33996_update();
 		} while (true);
 	}
 
@@ -155,15 +169,15 @@ int main(int argc, char* argv[])
 	 */
 	while (true) { // blink LED loop
 		/*
-		 * handle the MCP23S08 chip MCP2210 SPI setting
+		 * handle the MC33966 chip MCP2210 SPI setting
 		 */
 		setup_mc33996_transfer(); // CS 7 and mode 1
 		/*
-		 * handle the MCP23S08 chip setting
+		 * handle the MC33966 chip setting
 		 */
 		mc33996_init();
 		/*
-		 * SPI data to update the MCP23S08 outputs
+		 * SPI data to update the MC33966 outputs
 		 */
 		mc33996_update();
 

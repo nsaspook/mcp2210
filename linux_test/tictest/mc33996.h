@@ -42,12 +42,12 @@ extern "C" {
 	}
 	mc33996read_type;
 
-#define mc33996_control  0x000000
-#define mc33996_load  0x040000
-#define mc33996_reset  0x180000
+#define mc33996_control     0x000000
+#define mc33996_load        0x040000
+#define mc33996_reset       0x180000
 
-#define MC33996_DATA 6
-#define MC33996_DATA_LEN 8
+#define MC33996_DATA        6
+#define MC33996_DATA_LEN    8
 
 #ifdef __cplusplus
 }

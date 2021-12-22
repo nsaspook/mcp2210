@@ -362,8 +362,8 @@ void mc33996_init(void)
 	S->buf[0] = 0x42; // transfer SPI data command
 	S->buf[1] = 3; // no. of SPI bytes to transfer
 	S->buf[4] = 0x00; // on/off control
-	S->buf[5] = 0x00; // set all outputs to low
-	S->buf[6] = 0x00; // ""
+	S->buf[5] = 0x0f; // set all outputs to low
+	S->buf[6] = 0xf0; // ""
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 	while (S->rbuf[3] == SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE || S->rbuf[3] == SPI_STATUS_SUCCESSFUL) {
 		S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);

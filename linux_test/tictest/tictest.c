@@ -24,6 +24,7 @@
  *******************************************************/
 
 #include "mcp2210.h"
+#include "tictest.h"
 uint32_t fspeed = 20000; // led movement speed
 sBmx160SensorData_t magn, gyro, accel;
 extern const char *build_date, *build_time;
@@ -127,6 +128,25 @@ int main(int argc, char* argv[])
 		printf("MC33996 NOT detected. No or Wrong Magic Response.\n");
 	}
 
+	/*
+	 * handle the TIC12400 input chip MCP2210 SPI setting
+	 */
+	printf("\r--- TIC12400 Driver Version %s %s %s ---\r\n", TIC12400_DRIVER, build_date, build_time);
+	setup_tic12400_transfer();
+	/*
+	 * init and program 24 switch inputs from the TIC12400 chip
+	 */
+	tic12400_reset();
+
+	if (!tic12400_init()) {
+		printf("TIC12400 detection and setup failed code %i\n", tic12400_fail_value);
+		//		return 0;
+	} else {
+		printf("TIC12400 detected and configured.\n");
+	}
+	get_MCP2210_ext_interrupt(); // read switch data
+	tic12400_read_sw(0, 0);
+
 	if ((imu_id == BMX160_ID) && (imu_status == BMX160_ALL_PM_NORMAL)) {
 		do {
 			setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
@@ -138,7 +158,7 @@ int main(int argc, char* argv[])
 			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f  %02hhX  \r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z, data_status);
 			/* Write to the pipe */
 			snprintf(fifo_buf, 255, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
-			write(pipefd, fifo_buf, sizeof(fifo_buf));
+			//			write(pipefd, fifo_buf, sizeof(fifo_buf));
 			/*
 			 * handle the MC33966 chip MCP2210 SPI setting
 			 */
@@ -147,6 +167,23 @@ int main(int argc, char* argv[])
 			 * send data to the output ports
 			 */
 			mc33996_set(mc33996_control, k, 0);
+			/*
+			 * check for change in MCP2210 interrupt counter
+			 */
+			if (get_MCP2210_ext_interrupt()) {
+				/*
+				 * handle the TIC12400 chip MCP2210 SPI setting
+				 */
+				setup_tic12400_transfer(); // CS 5 and mode 1
+				/*
+				 * read 24 switch inputs
+				 */
+				tic12400_read_sw(0, 0);
+				/*
+				 * look for switch 0 changes for led speeds
+				 */
+				printf("tic12400_init value %X , status %X \n", tic12400_value, tic12400_status);
+			}
 			k++;
 		} while (true);
 	}

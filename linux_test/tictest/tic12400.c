@@ -102,11 +102,12 @@ const ticbuf_type ticreset1a = {
  */
 volatile uint32_t tic12400_status = 0, tic12400_counts = 0, tic12400_value_counts = 0;
 volatile uint32_t tic12400_value = 0;
-ticread_type *ticstatus = (ticread_type*) & tic12400_status;
-ticread_type *ticvalue = (ticread_type*) & tic12400_value;
 volatile bool tic12400_init_fail = false, tic12400_event = false; // chip error detection flag
 volatile bool tic12400_parity_status = false;
 volatile int32_t tic12400_fail_value = 0;
+
+static ticread_type *ticstatus = (ticread_type*) & tic12400_status;
+static ticread_type *ticvalue = (ticread_type*) & tic12400_value;
 
 /*
  * software reset of the chip using SPI

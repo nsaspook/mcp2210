@@ -53,8 +53,6 @@ bool tic12400_parity(uint32_t);
 extern volatile uint32_t tic12400_status, tic12400_counts, tic12400_value_counts;
 extern volatile uint32_t tic12400_value;
 extern volatile bool tic12400_init_fail, tic12400_event;
-extern ticread_type *ticstatus;
-extern ticread_type *ticvalue;
 extern volatile bool tic12400_parity_status;
 extern volatile int32_t	tic12400_fail_value;
 

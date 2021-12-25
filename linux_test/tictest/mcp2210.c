@@ -77,9 +77,12 @@ bool get_MCP2210_ext_interrupt(void)
 	S->buf[0] = 0x12; // Get (VM) the Current Number of Events From the Interrupt Pin, GPIO 6 FUNC2
 	S->buf[1] = 0x00; // reads, then resets the event counter
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	while (S->rbuf[3] == SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE || S->rbuf[3] == SPI_STATUS_SUCCESSFUL) {
+		S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	}
 	if (S->rbuf[4] || S->rbuf[5]) {
 #ifdef EXT_INT_DPRINT
-		printf("rbuf4 %x: rbuf5 %x: counts %i\n", S->rbuf[4], S->rbuf[5], ++counts);
+		printf("\r\nrbuf4 %x: rbuf5 %x: counts %i\n", S->rbuf[4], S->rbuf[5], ++counts);
 #endif
 		return true;
 	}
@@ -91,6 +94,9 @@ int32_t cancel_spi_transfer(void)
 	cbufs();
 	S->buf[0] = 0x11; // 0x11 cancel SPI transfer
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	while (S->rbuf[3] == SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE || S->rbuf[3] == SPI_STATUS_SUCCESSFUL) {
+		S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	}
 	return S->res;
 }
 

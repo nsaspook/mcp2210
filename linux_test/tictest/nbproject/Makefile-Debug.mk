@@ -36,6 +36,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/bmx160.o \
+	${OBJECTDIR}/mc33996.o \
 	${OBJECTDIR}/mcp2210.o \
 	${OBJECTDIR}/tic12400.o \
 	${OBJECTDIR}/tictest.o
@@ -69,6 +70,11 @@ ${OBJECTDIR}/bmx160.o: bmx160.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/bmx160.o bmx160.c
+
+${OBJECTDIR}/mc33996.o: mc33996.c
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mc33996.o mc33996.c
 
 ${OBJECTDIR}/mcp2210.o: mcp2210.c
 	${MKDIR} -p ${OBJECTDIR}

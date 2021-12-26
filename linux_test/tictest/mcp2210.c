@@ -4,7 +4,7 @@ static wchar_t wstr[MAX_STR]; // buffer for id settings strings from MPC2210
 
 static mcp2210_spi_type SPI_buffer; //  MCP2210 I/O structure
 mcp2210_spi_type *S = &SPI_buffer; // working I/O structure pointer
-const char *build_date = __DATE__, *build_time = __TIME__;
+static const char *build_date = __DATE__, *build_time = __TIME__;
 
 /*
  * zero rx/tx buffers
@@ -48,7 +48,7 @@ int32_t SendUSBCmd(hid_device *handle, uint8_t *cmdBuf, uint8_t *responseBuf)
 		if (r < 0) {
 			return ERROR_UNABLE_TO_READ_FROM_DEVICE;
 		}
-		sleep_us(10);
+		sleep_us(SPI_STATUS_DELAY_US);
 	}
 
 	return responseBuf[1];
@@ -59,6 +59,9 @@ int32_t nanosleep(const struct timespec *, struct timespec *);
 void sleep_us(const uint32_t microseconds)
 {
 	struct timespec ts;
+	if (!microseconds) {
+		return;
+	}
 	ts.tv_sec = microseconds / 1000000; // whole seconds
 	ts.tv_nsec = (microseconds % 1000000) * 1000; // remainder, in nanoseconds
 	nanosleep(&ts, NULL);
@@ -77,9 +80,6 @@ bool get_MCP2210_ext_interrupt(void)
 	S->buf[0] = 0x12; // Get (VM) the Current Number of Events From the Interrupt Pin, GPIO 6 FUNC2
 	S->buf[1] = 0x00; // reads, then resets the event counter
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
-	while (S->rbuf[3] == SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE || S->rbuf[3] == SPI_STATUS_SUCCESSFUL) {
-		S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
-	}
 	if (S->rbuf[4] || S->rbuf[5]) {
 #ifdef EXT_INT_DPRINT
 		printf("\r\nrbuf4 %x: rbuf5 %x: counts %i\n", S->rbuf[4], S->rbuf[5], ++counts);
@@ -94,9 +94,6 @@ int32_t cancel_spi_transfer(void)
 	cbufs();
 	S->buf[0] = 0x11; // 0x11 cancel SPI transfer
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
-	while (S->rbuf[3] == SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE || S->rbuf[3] == SPI_STATUS_SUCCESSFUL) {
-		S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
-	}
 	return S->res;
 }
 
@@ -359,7 +356,7 @@ void get_tic12400_transfer(void)
 }
 
 /*
- * config the SPI device to a default condition
+ * config the SPI device outputs to a default condition
  */
 void mc33996_init(void)
 {
@@ -377,7 +374,7 @@ void mc33996_init(void)
 };
 
 /*
- * config the SPI device to a default condition
+ * update the SPI device outputs
  */
 void mc33996_set(uint8_t cmd, uint8_t data_h, uint8_t data_l)
 {

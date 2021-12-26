@@ -43,6 +43,7 @@ typedef struct __attribute__((packed))
 }
 ticread_type;
 
+void tic12400_version(void);
 void tic12400_reset(void);
 bool tic12400_init(void);
 uint32_t tic12400_wr(const ticbuf_type *, uint16_t);

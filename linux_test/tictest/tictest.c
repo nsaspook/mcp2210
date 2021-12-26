@@ -25,21 +25,42 @@
 
 #include "mcp2210.h"
 #include "tictest.h"
+
 uint32_t fspeed = 20000; // led movement speed
 sBmx160SensorData_t magn, gyro, accel;
-extern const char *build_date, *build_time;
-char fifo_buf[256];
+static const char *build_date = __DATE__, *build_time = __TIME__;
+static char fifo_buf[256];
+
+const uint8_t led_pattern[0x10] = {
+	0b00000001,
+	0b00000010,
+	0b00000100,
+	0b00001000,
+	0b00010000,
+	0b00100000,
+	0b01000000,
+	0b10000000,
+	0b10000000,
+	0b01000000,
+	0b00100000,
+	0b00010000,
+	0b00001000,
+	0b00000100,
+	0b00000010,
+	0b00000001,
+};
 
 static void do_switch_state(void);
 
 int main(int argc, char* argv[])
 {
 	mcp2210_spi_type* mcp2210;
-	uint8_t imu_id = 0, imu_status = 0, data_status, k = 0;
+	uint8_t imu_id = 0, imu_status = 0, data_status = 0, k = 0;
 
 	int pipefd;
 	char * myfifo = "/tmp/myfifo";
 
+	printf("\r--- MCP2210 USB To SPI Testing Version %s %s %s ---\r\n", MCP2210_VERSION, build_date, build_time);
 	/*
 	 * init the hidraw device interface
 	 */
@@ -50,6 +71,7 @@ int main(int argc, char* argv[])
 
 	/*
 	 * setup the hidraw* device to communicate with the MCP2210
+	 * return hidapi handle
 	 */
 	if ((mcp2210 = hidrawapi_mcp2210_init(NULL)) == NULL) {
 		printf("MCP2210 device init error.\n");
@@ -62,14 +84,13 @@ int main(int argc, char* argv[])
 	unlink(myfifo);
 	/* create the FIFO (named pipe) */
 	mkfifo(myfifo, 0777);
-
 	/* Open the pipe. Just like you open a file */
 	pipefd = open(myfifo, O_RDWR);
 
 	/*
 	 * BMX160 IMU in SPI mode 3 testing
 	 */
-	printf("\r--- BMX160 Driver Version  %s %s %s ---\r\n", BMX160_DRIVER, build_date, build_time);
+	bmx160_version();
 	setup_bmx160_transfer(2); // 2 byte transfer, address and one data register
 	bmx160_get(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
 	// check for bmx160 boot status and configure if needed
@@ -94,9 +115,9 @@ int main(int argc, char* argv[])
 			bmx160_set(0x01, 0x4F); // mag_if3, indirect write
 			bmx160_set(0x4B, 0x4E); // mag_if2, sleep mode
 			bmx160_set(0x17, 0x4F); // mag_if3, indirect write
-			bmx160_set(0x51, 0x4E); // mag_if2, regular preset XY
+			bmx160_set(0x51, 0x4E); // mag_if2, high preset XY
 			bmx160_set(0x52, 0x4F); // mag_if3, indirect write
-			bmx160_set(0x52, 0x4E); // mag_if2, regular preset Z
+			bmx160_set(0x52, 0x4E); // mag_if2, high preset Z
 			bmx160_set(0x02, 0x4F); // mag_if3, data set
 			bmx160_set(0x4C, 0x4E); // mag_if2, data set
 			bmx160_set(0x42, 0x4D); // mag_if1, data set
@@ -105,6 +126,7 @@ int main(int argc, char* argv[])
 			bmx160_set(BMX160_CMD_MAG_PM_NORMAL, BMX160_REG_CMD);
 			sleep_us(us_2ms);
 			imu_status = bmx160_get(2, BMX160_PS_REG); // read power status
+			data_status = bmx160_get(2, BMX160_STATUS_REG);
 			printf("BMX160 IMU Sensors Configuration Complete. Chip Status: %02hhX.\n", imu_status);
 			if (bmx160_get(2, BMX160_NV_CONF) != BMX160_SPI_SET) {
 				bmx160_set(BMX160_SPI_SET, BMX160_NV_CONF);
@@ -119,7 +141,7 @@ int main(int argc, char* argv[])
 	/*
 	 * Check for proper mc33996 output chip SPI response
 	 */
-	printf("\r--- MC33996 Driver Version %s %s %s ---\r\n", MC33996_DRIVER, build_date, build_time);
+	mc33996_version();
 	setup_mc33996_transfer(6);
 	mc33996_set(mc33996_reset, mc33996_magic_h, mc33996_magic_l);
 	if (mc33996_check()) {
@@ -131,7 +153,7 @@ int main(int argc, char* argv[])
 	/*
 	 * handle the TIC12400 input chip MCP2210 SPI setting
 	 */
-	printf("\r--- TIC12400 Driver Version %s %s %s ---\r\n", TIC12400_DRIVER, build_date, build_time);
+	tic12400_version();
 	setup_tic12400_transfer();
 	/*
 	 * init and program 24 switch inputs from the TIC12400 chip
@@ -146,19 +168,18 @@ int main(int argc, char* argv[])
 	}
 	get_MCP2210_ext_interrupt(); // read switch data
 	tic12400_read_sw(0, 0);
+	do_switch_state();
 
 	if ((imu_id == BMX160_ID) && (imu_status == BMX160_ALL_PM_NORMAL)) {
 		do {
+			sleep_us(fspeed);
 			setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
-			sleep_us(us_10ms);
-			data_status = bmx160_get(2, BMX160_STATUS_REG);
 			bmx160_get(24, BMX160_DATA_REG);
-			//			show_bmx160_transfer();
 			getAllData(&magn, &gyro, &accel);
 			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f  %02hhX  \r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z, data_status);
 			/* Write to the pipe */
 			snprintf(fifo_buf, 255, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
-			//			write(pipefd, fifo_buf, sizeof(fifo_buf));
+			write(pipefd, fifo_buf, sizeof(fifo_buf));
 			/*
 			 * handle the MC33966 chip MCP2210 SPI setting
 			 */
@@ -166,7 +187,7 @@ int main(int argc, char* argv[])
 			/*
 			 * send data to the output ports
 			 */
-			mc33996_set(mc33996_control, k, 0);
+			mc33996_set(mc33996_control, led_pattern[k & 0x0f], 0);
 			/*
 			 * check for change in MCP2210 interrupt counter
 			 */
@@ -182,103 +203,26 @@ int main(int argc, char* argv[])
 				/*
 				 * look for switch 0 changes for led speeds
 				 */
+				do_switch_state();
 				printf("tic12400_init value %X , status %X \n", tic12400_value, tic12400_status);
+			} else {
+				fspeed = abs((int32_t)(magn.z*1000.0));
 			}
 			k++;
 		} while (true);
 	}
 
 	close(pipefd);
-
-	/*
-	 * handle the TIC12400 chip MCP2210 SPI setting
-	 */
-	setup_tic12400_transfer();
-	get_tic12400_transfer();
-
-	/*
-	 * init and program 24 switch inputs from the TIC12400 chip
-	 */
-	tic12400_reset();
-	if (!tic12400_init()) {
-		printf("tic12400_init failed code %i\n", tic12400_fail_value);
-	}
-	get_MCP2210_ext_interrupt(); // read switch data
-	tic12400_read_sw(0, 0);
-	/*
-	 * setup program state using switch settings
-	 */
-	do_switch_state();
-
-	/*
-	 * we need to change SPI speed, mode, transfer size and cs as we switch to different devices.
-	 */
-	while (true) { // blink LED loop
-		/*
-		 * handle the MC33966 chip MCP2210 SPI setting
-		 */
-		setup_mc33996_transfer(3); // CS 7 and mode 1
-		/*
-		 * handle the MC33966 chip setting
-		 */
-		mc33996_set(mc33996_control, 0, 0);
-		/*
-		 * SPI data to update the MC33966 outputs
-		 */
-		mc33996_update();
-
-		/*
-		 * light show sequence
-		 */
-		for (int k = 0; k < 10; k++) {
-			//lights up LED0 through LED7 one by one
-			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
-				mcp2210->buf[MCP23s08_DATA] = 1 << i;
-				mcp2210->buf[MCP23s08_DATA - 1] = 1 << i;
-				SPI_WriteRead(mcp2210->handle, mcp2210->buf, mcp2210->rbuf);
-				//				sleep_us(10);
-				//				SPI_WriteRead(mcp2210->handle, mcp2210->offbuf, mcp2210->rbuf);
-				sleep_us(fspeed);
-			}
-			//			if (get_MCP2210_ext_interrupt()) {
-			//				break;
-			//			}
-			//lights up LED7 through LED0 one by one
-			for (int i = 0; i < MCP23s08_DATA_LEN; i++) {
-				mcp2210->buf[MCP23s08_DATA] = 0x80 >> i;
-				mcp2210->buf[MCP23s08_DATA - 1] = 0x80 >> i;
-				SPI_WriteRead(mcp2210->handle, mcp2210->buf, mcp2210->rbuf);
-				//				sleep_us(10);
-				//				SPI_WriteRead(mcp2210->handle, mcp2210->offbuf, mcp2210->rbuf);
-				sleep_us(fspeed);
-			}
-		}
-		if (get_MCP2210_ext_interrupt()) {
-			/*
-			 * handle the TIC12400 chip MCP2210 SPI setting
-			 */
-			setup_tic12400_transfer(); // CS 5 and mode 1
-			/*
-			 * read 24 switch inputs after light show sequence
-			 */
-			tic12400_read_sw(0, 0);
-			/*
-			 * look for switch 0 changes for led speeds
-			 */
-			do_switch_state();
-		}
-	}
 	hid_close(mcp2210->handle);
 	hid_exit(); /* Free static HIDAPI objects. */
 	return 0;
-
 }
 
 void do_switch_state(void)
 {
 	if (tic12400_get_sw() & raw_mask_0) {
-		fspeed = 20000;
+		fspeed = abs((int32_t)(magn.x*1000.0));
 	} else {
-		fspeed = 2000;
+		fspeed = us_50ms;
 	}
 }

@@ -53,6 +53,8 @@ extern "C" {
 #define MC33996_DATA            6
 #define MC33996_DATA_LEN        8
 
+        void mc33996_version(void);
+
 #ifdef __cplusplus
 }
 #endif

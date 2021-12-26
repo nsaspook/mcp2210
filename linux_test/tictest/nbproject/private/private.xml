@@ -15,6 +15,7 @@
             <file>file:/public/mcp2210/linux_test/tictest/tic12400.c</file>
             <file>file:/public/mcp2210/linux_test/tictest/mcp2210.c</file>
             <file>file:/public/mcp2210/linux_test/tictest/tictest.c</file>
+            <file>file:/public/mcp2210/linux_test/tictest/mc33996.c</file>
             <file>file:/public/mcp2210/linux_test/tictest/mcp2210.h</file>
         </group>
     </open-files>

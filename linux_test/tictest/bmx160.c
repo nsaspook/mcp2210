@@ -7,6 +7,7 @@
 
 float accelRange = BMX160_ACCEL_MG_LSB_2G * 9.8;
 float gyroRange = BMX160_GYRO_SENSITIVITY_250DPS;
+static const char *build_date = __DATE__, *build_time = __TIME__;
 
 /*
  * read raw data array and convert to usable vector data for each sensor
@@ -43,4 +44,9 @@ void getAllData(sBmx160SensorData_t *magn, sBmx160SensorData_t *gyro, sBmx160Sen
 		accel->y = y * accelRange;
 		accel->z = z * accelRange;
 	}
+}
+
+void bmx160_version(void)
+{
+	printf("\r--- BMX160 Driver Version  %s %s %s ---\r\n", BMX160_DRIVER, build_date, build_time);
 }

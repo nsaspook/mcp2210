@@ -42,6 +42,8 @@ extern "C" {
 #define ns_5ms                          5000000
 #define us_10ms                         10000
 #define us_100ms                        100000
+#define us_50ms                         50000
+#define us_0ms                          0        
 #define us_2ms                          2000
 #define us_5ms                          5000
 
@@ -93,6 +95,7 @@ extern "C" {
 
 
         void getAllData(sBmx160SensorData_t *, sBmx160SensorData_t *, sBmx160SensorData_t *);
+        void bmx160_version(void);
 
 #ifdef __cplusplus
 }

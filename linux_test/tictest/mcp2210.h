@@ -37,22 +37,23 @@ extern "C" {
 
 #define MCP2210_DRIVER "V0.8"
 
-#define MAX_STR 255
-#define OPERATION_SUCCESSFUL 0
-#define ERROR_UNABLE_TO_OPEN_DEVICE -1
-#define ERROR_UNABLE_TO_WRITE_TO_DEVICE -2
-#define ERROR_UNABLE_TO_READ_FROM_DEVICE -3
-#define ERROR_INVALID_DEVICE_HANDLE -99
+#define MAX_STR                                 255
+#define OPERATION_SUCCESSFUL                    0
+#define ERROR_UNABLE_TO_OPEN_DEVICE             -1
+#define ERROR_UNABLE_TO_WRITE_TO_DEVICE         -2
+#define ERROR_UNABLE_TO_READ_FROM_DEVICE        -3
+#define ERROR_INVALID_DEVICE_HANDLE             -99
 
-#define COMMAND_BUFFER_LENGTH 64
-#define RESPONSE_BUFFER_LENGTH 64
+#define COMMAND_BUFFER_LENGTH                   64
+#define RESPONSE_BUFFER_LENGTH                  64
 
-#define SPI_STATUS_FINISHED_NO_DATA_TO_SEND 0x10
-#define SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE 0x20
-#define SPI_STATUS_SUCCESSFUL 0x30
+#define SPI_STATUS_FINISHED_NO_DATA_TO_SEND     0x10
+#define SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE   0x20
+#define SPI_STATUS_SUCCESSFUL                   0x30
+#define SPI_STATUS_DELAY_US                     0x01        
 
-#define MCP23s08_DATA 6
-#define MCP23s08_DATA_LEN 8
+#define MC33996_DATA                           6
+#define MC33996_DATA_LEN                       8
 
         /*
          * HIDAPI I/O structure

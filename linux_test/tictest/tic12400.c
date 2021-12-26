@@ -109,11 +109,16 @@ volatile int32_t tic12400_fail_value = 0;
 static ticread_type *ticstatus = (ticread_type*) & tic12400_status;
 static ticread_type *ticvalue = (ticread_type*) & tic12400_value;
 
+static const char *build_date = __DATE__, *build_time = __TIME__;
+
+void tic12400_version(void)
+{
+	printf("\r--- TIC12400 Driver Version %s %s %s ---\r\n", TIC12400_DRIVER, build_date, build_time);
+}
 /*
  * software reset of the chip using SPI
  * all registers set to their default values
  */
-
 /*
  * chip setup via SPI data transfers
  */

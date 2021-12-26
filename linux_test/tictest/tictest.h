@@ -19,13 +19,16 @@ extern "C" {
 #endif
 #include <time.h>
 #include <hidapi/hidapi.h>
+#include <math.h>
 
-	/*
-	 * debugging print enable
-	 */
-	//#define DPRINT
+        /*
+         * debugging print enable
+         */
+        //#define DPRINT
 #define EXT_INT_DPRINT
-	
+
+#define MCP2210_VERSION "V0.4"   
+
 #ifdef __cplusplus
 }
 #endif

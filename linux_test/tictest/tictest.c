@@ -55,7 +55,7 @@ static void do_switch_state(void);
 int main(int argc, char* argv[])
 {
 	mcp2210_spi_type* mcp2210;
-	uint8_t imu_id = 0, imu_status = 0, data_status = 0, k = 0;
+	uint8_t imu_id = 0, imu_status = 0, data_status = 0, k = 0, j = 0;
 
 	int pipefd;
 	char * myfifo = "/tmp/myfifo";
@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
 			/*
 			 * send data to the output ports
 			 */
-			mc33996_set(mc33996_control, led_pattern[k & 0x0f], 0);
+			mc33996_set(mc33996_control, led_pattern[k & 0x0f], led_pattern[j & 0x0f]);
 			/*
 			 * check for change in MCP2210 interrupt counter
 			 */
@@ -206,9 +206,10 @@ int main(int argc, char* argv[])
 				do_switch_state();
 				printf("tic12400_init value %X , status %X \n", tic12400_value, tic12400_status);
 			} else {
-				fspeed = abs((int32_t)(magn.z*1000.0));
+				fspeed = abs((int32_t) (magn.z * 1000.0));
 			}
 			k++;
+			j--;
 		} while (true);
 	}
 
@@ -221,7 +222,7 @@ int main(int argc, char* argv[])
 void do_switch_state(void)
 {
 	if (tic12400_get_sw() & raw_mask_0) {
-		fspeed = abs((int32_t)(magn.x*1000.0));
+		fspeed = abs((int32_t) (magn.x * 1000.0));
 	} else {
 		fspeed = us_50ms;
 	}

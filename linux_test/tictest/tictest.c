@@ -165,6 +165,7 @@ int main(int argc, char* argv[])
 		//		return 0;
 	} else {
 		printf("TIC12400 detected and configured.\n");
+		printf("TIC12400 Chip ID %X \n", tic12400_status & 0b111111111111);
 	}
 	get_MCP2210_ext_interrupt(); // read switch data
 	tic12400_read_sw(0, 0);
@@ -206,7 +207,7 @@ int main(int argc, char* argv[])
 				do_switch_state();
 				printf("tic12400_init value %X , status %X \n", tic12400_value, tic12400_status);
 			} else {
-				fspeed = abs((int32_t) (magn.z * 1000.0));
+				//+				fspeed = abs((int32_t) (magn.z * 1000.0));
 			}
 			k++;
 			j--;
@@ -227,3 +228,4 @@ void do_switch_state(void)
 		fspeed = us_50ms;
 	}
 }
+

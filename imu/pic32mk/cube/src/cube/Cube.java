@@ -74,6 +74,7 @@ public class Cube {
                 transformGroup.setTransform(new Transform3D(quaternion, vector, 1.0));
             }
         } catch (FileNotFoundException e) {
+            System.err.println("Unable to read file data. Exiting.");
             e.printStackTrace();
         }
     }

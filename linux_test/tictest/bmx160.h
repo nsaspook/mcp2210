@@ -18,23 +18,29 @@ extern "C" {
 
 #define BMX160_R                        0b10000000
 #define BMX160_W                        0b00000000
+#define BMX160_DATA_LEN                 31
+#define BMX160_REG_LEN                  2
 #define BMX160_ID                       0xD8
 #define BMX160_ID_REG                   0x00
 #define BMX160_ERROR_REG                0x02        
 #define BMX160_PS_REG                   0x03
 #define BMX160_DATA_REG                 0x04
 #define BMX160_STATUS_REG               0x1B
+#define BMX160_INT_REG1                 25       
 #define BMX160_SPI_SET                  0x01
 #define BMX160_SPI_4WIRE                0x00
 #define BMX160_SPI_3WIRE                0x01
 #define BMX160_CMD_ACCEL_PM_NORMAL      0x11
 #define BMX160_CMD_GYRO_PM_NORMAL       0x15
 #define BMX160_CMD_MAG_PM_NORMAL        0x19
+#define BMX160_CMD_MAG_PM_LOWPOWER      0x1A        
 #define BMX160_ALL_PM_NORMAL            0x15
+#define BMX160_ALL_PM_OK                0x16        
 #define BMX160_REG_CMD                  0x7E
 #define BMX160_NV_CONF                  0x70
 #define BMX160_IF_CONF                  0x6B
 #define BMX160_REG_DUMMY                0x7F
+#define BMX160_TEMP_SCALAR              0.001953125
 
 #define ns_10ms                         10000000
 #define ns_100ms                        100000000

@@ -15451,8 +15451,8 @@ Created by Upverter.com</description>
 <part name="VDD14" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="VDD" device=""/>
 <part name="VDD15" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="VDD" device=""/>
 <part name="VDD16" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="VDD" device=""/>
-<part name="IMU_INT2" library="wirepad" library_urn="urn:adsk.eagle:library:412" deviceset="WIREPAD" device="1,6/0,8" package3d_urn="urn:adsk.eagle:package:30830/1" value="int2"/>
-<part name="IMU_INT1" library="wirepad" library_urn="urn:adsk.eagle:library:412" deviceset="WIREPAD" device="1,6/0,8" package3d_urn="urn:adsk.eagle:package:30830/1" value="int1"/>
+<part name="PAD1" library="wirepad" library_urn="urn:adsk.eagle:library:412" deviceset="WIREPAD" device="1,6/0,8" package3d_urn="urn:adsk.eagle:package:30830/1"/>
+<part name="PAD2" library="wirepad" library_urn="urn:adsk.eagle:library:412" deviceset="WIREPAD" device="1,6/0,8" package3d_urn="urn:adsk.eagle:package:30830/1"/>
 <part name="U5" library="ON Semiconductor - NCP1117DT33G" deviceset="ON_SEMICONDUCTOR_NCP1117DT33G" device="ON_SEMICONDUCTOR_NCP1117DT33G_0_0"/>
 <part name="VDD17" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="VDD" device=""/>
 <part name="GND40" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
@@ -15468,10 +15468,6 @@ Created by Upverter.com</description>
 <part name="GND43" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="T2_GND1" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-1X2" device="" package3d_urn="urn:adsk.eagle:package:22435/2" value="gnd"/>
 <part name="GND44" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
-<part name="JMP2" library="jump-0r-smd" library_urn="urn:adsk.eagle:library:251" deviceset="0R-JUMP" device="A" package3d_urn="urn:adsk.eagle:package:15385/1" value="CS8_CS0"/>
-<part name="TP6" library="testpad" library_urn="urn:adsk.eagle:library:385" deviceset="PTR1" device="B1,27" package3d_urn="urn:adsk.eagle:package:27944/2"/>
-<part name="USB_D+" library="wirepad" library_urn="urn:adsk.eagle:library:412" deviceset="WIREPAD" device="1,6/0,8" package3d_urn="urn:adsk.eagle:package:30830/1" value="d+"/>
-<part name="USB_D-" library="wirepad" library_urn="urn:adsk.eagle:library:412" deviceset="WIREPAD" device="1,6/0,8" package3d_urn="urn:adsk.eagle:package:30830/1" value="d-"/>
 </parts>
 <sheets>
 <sheet>
@@ -16035,13 +16031,13 @@ Created by Upverter.com</description>
 <instance part="VDD16" gate="G$1" x="68.58" y="195.58" smashed="yes" rot="R90">
 <attribute name="VALUE" x="71.12" y="193.04" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="IMU_INT2" gate="G$1" x="76.2" y="0" smashed="yes">
-<attribute name="NAME" x="77.597" y="-5.7658" size="1.778" layer="95"/>
-<attribute name="VALUE" x="77.597" y="-3.302" size="1.778" layer="96"/>
+<instance part="PAD1" gate="G$1" x="76.2" y="0" smashed="yes">
+<attribute name="NAME" x="75.057" y="1.8542" size="1.778" layer="95"/>
+<attribute name="VALUE" x="75.057" y="-3.302" size="1.778" layer="96"/>
 </instance>
-<instance part="IMU_INT1" gate="G$1" x="91.44" y="7.62" smashed="yes">
-<attribute name="NAME" x="77.597" y="6.9342" size="1.778" layer="95"/>
-<attribute name="VALUE" x="77.597" y="9.398" size="1.778" layer="96"/>
+<instance part="PAD2" gate="G$1" x="91.44" y="7.62" smashed="yes">
+<attribute name="NAME" x="90.297" y="9.4742" size="1.778" layer="95"/>
+<attribute name="VALUE" x="90.297" y="4.318" size="1.778" layer="96"/>
 </instance>
 <instance part="U5" gate="G$0" x="-7.62" y="93.98" smashed="yes">
 <attribute name="NAME" x="-5.08" y="91.44" size="2.54" layer="95" align="top-left"/>
@@ -16099,22 +16095,6 @@ Created by Upverter.com</description>
 </instance>
 <instance part="GND44" gate="1" x="215.9" y="104.14" smashed="yes">
 <attribute name="VALUE" x="213.36" y="101.6" size="1.778" layer="96"/>
-</instance>
-<instance part="JMP2" gate="-0R" x="83.82" y="106.68" smashed="yes" rot="R90">
-<attribute name="NAME" x="91.44" y="102.87" size="1.778" layer="95" rot="R180"/>
-</instance>
-<instance part="JMP2" gate="G$2" x="81.28" y="104.14" smashed="yes" rot="R90"/>
-<instance part="TP6" gate="G$1" x="86.36" y="109.22" smashed="yes" rot="R90">
-<attribute name="NAME" x="92.71" y="108.204" size="1.778" layer="95" rot="R180"/>
-<attribute name="TP_SIGNAL_NAME" x="88.9" y="110.49" size="1.778" layer="97" rot="R90"/>
-</instance>
-<instance part="USB_D+" gate="G$1" x="27.94" y="139.7" smashed="yes" rot="R180">
-<attribute name="NAME" x="41.783" y="140.3858" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="36.703" y="137.922" size="1.778" layer="96" rot="R180"/>
-</instance>
-<instance part="USB_D-" gate="G$1" x="27.94" y="132.08" smashed="yes" rot="R180">
-<attribute name="NAME" x="41.783" y="132.7658" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="36.703" y="130.302" size="1.778" layer="96" rot="R180"/>
 </instance>
 </instances>
 <busses>
@@ -17013,12 +16993,6 @@ Created by Upverter.com</description>
 <label x="81.28" y="20.32" size="1.778" layer="95"/>
 <junction x="93.98" y="20.32"/>
 </segment>
-<segment>
-<wire x1="81.28" y1="111.76" x2="81.28" y2="106.68" width="0.1524" layer="91"/>
-<pinref part="JMP2" gate="-0R" pin="1"/>
-<label x="76.2" y="111.76" size="1.778" layer="95"/>
-<junction x="81.28" y="106.68"/>
-</segment>
 </net>
 <net name="N$34" class="0">
 <segment>
@@ -17540,12 +17514,6 @@ Created by Upverter.com</description>
 <junction x="53.34" y="182.88"/>
 <label x="55.88" y="177.8" size="1.778" layer="95"/>
 </segment>
-<segment>
-<wire x1="25.4" y1="139.7" x2="25.4" y2="137.16" width="0.1524" layer="91"/>
-<pinref part="USB_D+" gate="G$1" pin="P"/>
-<junction x="25.4" y="139.7"/>
-<label x="25.4" y="137.16" size="1.778" layer="95"/>
-</segment>
 </net>
 <net name="N$56" class="0">
 <segment>
@@ -17559,12 +17527,6 @@ Created by Upverter.com</description>
 <pinref part="X8" gate="G$1" pin="2"/>
 <junction x="50.8" y="182.88"/>
 <label x="50.8" y="175.26" size="1.778" layer="95"/>
-</segment>
-<segment>
-<wire x1="25.4" y1="132.08" x2="25.4" y2="134.62" width="0.1524" layer="91"/>
-<pinref part="USB_D-" gate="G$1" pin="P"/>
-<junction x="25.4" y="132.08"/>
-<label x="25.4" y="134.62" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$53" class="0">
@@ -17642,12 +17604,6 @@ Created by Upverter.com</description>
 <pinref part="SV3" gate="G$1" pin="1"/>
 <junction x="68.58" y="109.22"/>
 <label x="58.42" y="124.46" size="1.778" layer="95"/>
-</segment>
-<segment>
-<wire x1="86.36" y1="106.68" x2="86.36" y2="99.06" width="0.1524" layer="91"/>
-<pinref part="JMP2" gate="-0R" pin="3"/>
-<label x="86.36" y="99.06" size="1.778" layer="95"/>
-<junction x="86.36" y="106.68"/>
 </segment>
 </net>
 <net name="GP1" class="0">
@@ -17758,15 +17714,13 @@ Created by Upverter.com</description>
 <wire x1="81.28" y1="5.08" x2="81.28" y2="0" width="0.1524" layer="91"/>
 <wire x1="81.28" y1="0" x2="78.74" y2="0" width="0.1524" layer="91"/>
 <junction x="93.98" y="5.08"/>
-<pinref part="IMU_INT2" gate="G$1" pin="P"/>
-<junction x="78.74" y="0"/>
+<pinref part="PAD1" gate="G$1" pin="P"/>
 </segment>
 </net>
 <net name="N$70" class="0">
 <segment>
 <pinref part="U4" gate="G$1" pin="INT1"/>
-<pinref part="IMU_INT1" gate="G$1" pin="P"/>
-<junction x="93.98" y="7.62"/>
+<pinref part="PAD2" gate="G$1" pin="P"/>
 </segment>
 </net>
 <net name="USB5V_FUSE" class="1">
@@ -17833,13 +17787,6 @@ Created by Upverter.com</description>
 <junction x="58.42" y="109.22"/>
 </segment>
 </net>
-<net name="N$6" class="0">
-<segment>
-<pinref part="JMP2" gate="-0R" pin="2"/>
-<pinref part="TP6" gate="G$1" pin="TP"/>
-<junction x="83.82" y="109.22"/>
-</segment>
-</net>
 </nets>
 </sheet>
 </sheets>
@@ -17884,8 +17831,8 @@ Created by Upverter.com</description>
 <approved hash="208,1,20.32,86.36,VDD,sup,,,,"/>
 <approved hash="208,1,7.62,30.48,VDD,sup,,,,"/>
 <approved hash="113,1,114.196,95.146,FRAME1,,,,,"/>
-<approved hash="115,1,-10.16,162.56,MOSI_SIG,,,,,"/>
 <approved hash="115,1,-10.16,167.64,SCK_SIG,,,,,"/>
+<approved hash="115,1,-10.16,162.56,MOSI_SIG,,,,,"/>
 </errors>
 </schematic>
 </drawing>

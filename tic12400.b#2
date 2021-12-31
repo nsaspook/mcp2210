@@ -82,7 +82,7 @@
 <wire x1="100" y1="80" x2="0" y2="80" width="0" layer="20"/>
 <wire x1="0" y1="80" x2="0" y2="0" width="0" layer="20"/>
 <text x="5.08" y="36.83" size="1.27" layer="1" font="vector" ratio="20" rot="R90">TIC12400 MC33996  IMU I/O board V1.7</text>
-<text x="6.35" y="62.23" size="1.778" layer="1" font="vector" ratio="20" rot="R270">SPI 4MHz MAX</text>
+<text x="6.35" y="68.58" size="1.778" layer="1" font="vector" ratio="13" rot="R270">MCP2210 SPI 4MHz MAX</text>
 <hole x="5.08" y="74.93" drill="2.54"/>
 <hole x="5.08" y="5.08" drill="2.54"/>
 <hole x="96.52" y="5.08" drill="2.54"/>

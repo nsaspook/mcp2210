@@ -13,7 +13,6 @@ void cbufs(void)
 {
 	memset(S->buf, 0, sizeof(S->buf)); // initialize bufs to zeros
 	memset(S->rbuf, 0, sizeof(S->rbuf));
-	memset(S->offbuf, 0, sizeof(S->offbuf));
 }
 
 /*
@@ -52,6 +51,11 @@ int32_t SendUSBCmd(hid_device *handle, uint8_t *cmdBuf, uint8_t *responseBuf)
 	}
 
 	return responseBuf[1];
+}
+
+int32_t get_usb_res(void)
+{
+	return S->res;
 }
 
 int32_t nanosleep(const struct timespec *, struct timespec *);
@@ -233,8 +237,6 @@ uint8_t bmx160_get(uint8_t nbytes, uint8_t addr)
 	S->buf[0] = 0x42; // transfer SPI data command
 	S->buf[1] = nbytes; // no. of SPI bytes to transfer
 	S->buf[4] = addr | BMX160_R; //device address, read
-	S->buf[5] = 0x00;
-	S->buf[6] = 0x00;
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 	while (S->rbuf[3] == SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE || S->rbuf[3] == SPI_STATUS_SUCCESSFUL) {
 		S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
@@ -253,7 +255,6 @@ uint8_t bmx160_set(uint8_t set_data, uint8_t addr)
 	S->buf[1] = 2; // no. of SPI bytes to transfer
 	S->buf[4] = addr | BMX160_W; //device address, write
 	S->buf[5] = set_data;
-	S->buf[6] = 0x00;
 	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
 	while (S->rbuf[3] == SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE || S->rbuf[3] == SPI_STATUS_SUCCESSFUL) {
 		S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
@@ -326,20 +327,32 @@ void show_bmx160_transfer(void)
 /*
  * get raw sensor data from IMU and transfer to buffer
  */
-void move_bmx160_transfer(uint8_t *pBuf)
+void move_bmx160_transfer_data(uint8_t *pBuf)
 {
-	for (int i = 5; i < 28; i++) {
-		pBuf[i - 5] = S->rbuf[i];
+	if (pBuf) {
+		for (int i = 5; i < 28; i++) {
+			pBuf[i - 5] = S->rbuf[i];
+		}
 	}
 }
 
 /*
- * setup SPI command for GPIO updates
+ * get raw sensor status 0x1B from IMU and transfer to buffer
+ */
+void move_bmx160_transfer_status(uint8_t *pBuf)
+{
+	if (pBuf) {
+		for (int i = 28; i < 36; i++) {
+			pBuf[i - 28] = S->rbuf[i];
+		}
+	}
+}
+
+/*
+ * 
  */
 void bmx160_update(void)
 {
-	S->buf[4] = 0x40;
-	S->buf[5] = 0x0a;
 }
 
 void get_tic12400_transfer(void)
@@ -444,5 +457,4 @@ void get_mc33996_transfer(void)
 void mc33996_update(void)
 {
 	S->buf[4] = mc33996_control; // set MC33996 outputs command
-	S->offbuf[4] = mc33996_control; // set MC33996 outputs command
 };

@@ -30,6 +30,7 @@ uint32_t fspeed = 20000; // led movement speed
 sBmx160SensorData_t magn, gyro, accel;
 static const char *build_date = __DATE__, *build_time = __TIME__;
 static char fifo_buf[256];
+static uint8_t stat_buf[16];
 
 const uint8_t led_pattern[0x10] = {
 	0b00000001,
@@ -56,6 +57,8 @@ int main(int argc, char* argv[])
 {
 	mcp2210_spi_type* mcp2210;
 	uint8_t imu_id = 0, imu_status = 0, data_status = 0, k = 0, j = 0;
+	int16_t imu_temp_raw = 0;
+	double imu_temp_c = 0.0;
 
 	int pipefd;
 	char * myfifo = "/tmp/myfifo";
@@ -91,11 +94,11 @@ int main(int argc, char* argv[])
 	 * BMX160 IMU in SPI mode 3 testing
 	 */
 	bmx160_version();
-	setup_bmx160_transfer(2); // 2 byte transfer, address and one data register
-	bmx160_get(2, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
+	setup_bmx160_transfer(BMX160_REG_LEN); // 2 byte transfer, address and one data register
+	bmx160_get(BMX160_REG_LEN, BMX160_REG_DUMMY); // toggle CS to set bmx160 SPI mode
 	// check for bmx160 boot status and configure if needed
-	if ((imu_id = bmx160_get(2, BMX160_ID_REG)) == BMX160_ID) {
-		imu_status = bmx160_get(2, BMX160_PS_REG); // read power status
+	if ((imu_id = bmx160_get(BMX160_REG_LEN, BMX160_ID_REG)) == BMX160_ID) {
+		imu_status = bmx160_get(BMX160_REG_LEN, BMX160_PS_REG); // read power status
 		printf("BMX160 IMU detected, Chip ID %02hhX, Chip Power Status %02hhX.\n", imu_id, imu_status);
 		if (imu_status == BMX160_ALL_PM_NORMAL) {
 			printf("BMX160 IMU Sensors All Operational.\n");
@@ -125,10 +128,10 @@ int main(int argc, char* argv[])
 			bmx160_set(0x00, 0x4C); // mag_if0, data mode
 			bmx160_set(BMX160_CMD_MAG_PM_NORMAL, BMX160_REG_CMD);
 			sleep_us(us_2ms);
-			imu_status = bmx160_get(2, BMX160_PS_REG); // read power status
-			data_status = bmx160_get(2, BMX160_STATUS_REG);
+			imu_status = bmx160_get(BMX160_REG_LEN, BMX160_PS_REG); // read power status
+			data_status = bmx160_get(BMX160_REG_LEN, BMX160_STATUS_REG);
 			printf("BMX160 IMU Sensors Configuration Complete. Chip Status: %02hhX.\n", imu_status);
-			if (bmx160_get(2, BMX160_NV_CONF) != BMX160_SPI_SET) {
+			if (bmx160_get(BMX160_REG_LEN, BMX160_NV_CONF) != BMX160_SPI_SET) {
 				bmx160_set(BMX160_SPI_SET, BMX160_NV_CONF);
 				bmx160_set(BMX160_SPI_4WIRE, BMX160_IF_CONF);
 				printf("BMX160 Interface set to SPI in NVRAM.\n");
@@ -170,25 +173,30 @@ int main(int argc, char* argv[])
 	get_MCP2210_ext_interrupt(); // read switch data
 	tic12400_read_sw(0, 0);
 	do_switch_state();
+	setup_bmx160_transfer(BMX160_DATA_LEN); // byte transfer, address and data registers
 
-	if ((imu_id == BMX160_ID) && (imu_status == BMX160_ALL_PM_NORMAL)) {
+	if ((imu_id == BMX160_ID) && ((imu_status == BMX160_ALL_PM_NORMAL) || (imu_status == BMX160_ALL_PM_OK))) {
 		do {
 			sleep_us(fspeed);
-			setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
-			bmx160_get(24, BMX160_DATA_REG);
+			//			setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
+			bmx160_get(BMX160_DATA_LEN, BMX160_DATA_REG);
 			getAllData(&magn, &gyro, &accel);
-			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f  %02hhX  \r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z, data_status);
+			move_bmx160_transfer_status(stat_buf);
+			imu_temp_raw = stat_buf[5] + (stat_buf[6] << 8); // bmx160 chip temp to int16_t
+			imu_temp_c = ((double) imu_temp_raw * BMX160_TEMP_SCALAR) + 23.0; // bmx160 chip temp to C
+			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f  %02hhX %5.2fC %i \r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z,
+				data_status, imu_temp_c, get_usb_res());
 			/* Write to the pipe */
 			snprintf(fifo_buf, 255, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
 			write(pipefd, fifo_buf, sizeof(fifo_buf));
 			/*
 			 * handle the MC33966 chip MCP2210 SPI setting
 			 */
-			setup_mc33996_transfer(3);
+			//			setup_mc33996_transfer(3);
 			/*
 			 * send data to the output ports
 			 */
-			mc33996_set(mc33996_control, led_pattern[k & 0x0f], led_pattern[j & 0x0f]);
+			//			mc33996_set(mc33996_control, led_pattern[k & 0x0f], led_pattern[j & 0x0f]);
 			/*
 			 * check for change in MCP2210 interrupt counter
 			 */
@@ -206,6 +214,7 @@ int main(int argc, char* argv[])
 				 */
 				do_switch_state();
 				printf("tic12400_init value %X , status %X \n", tic12400_value, tic12400_status);
+				setup_bmx160_transfer(BMX160_DATA_LEN); // byte transfer, address and data registers
 			} else {
 				//+				fspeed = abs((int32_t) (magn.z * 1000.0));
 			}

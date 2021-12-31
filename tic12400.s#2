@@ -15468,6 +15468,8 @@ Created by Upverter.com</description>
 <part name="GND43" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="T2_GND1" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-1X2" device="" package3d_urn="urn:adsk.eagle:package:22435/2" value="gnd"/>
 <part name="GND44" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
+<part name="JMP2" library="jump-0r-smd" library_urn="urn:adsk.eagle:library:251" deviceset="0R-JUMP" device="A" package3d_urn="urn:adsk.eagle:package:15385/1" value="+24_CONNECT"/>
+<part name="TP6" library="testpad" library_urn="urn:adsk.eagle:library:385" deviceset="PTR1" device="B1,27" package3d_urn="urn:adsk.eagle:package:27944/2"/>
 </parts>
 <sheets>
 <sheet>
@@ -16095,6 +16097,14 @@ Created by Upverter.com</description>
 </instance>
 <instance part="GND44" gate="1" x="215.9" y="104.14" smashed="yes">
 <attribute name="VALUE" x="213.36" y="101.6" size="1.778" layer="96"/>
+</instance>
+<instance part="JMP2" gate="-0R" x="83.82" y="106.68" smashed="yes" rot="R90">
+<attribute name="NAME" x="91.44" y="102.87" size="1.778" layer="95" rot="R180"/>
+</instance>
+<instance part="JMP2" gate="G$2" x="81.28" y="104.14" smashed="yes" rot="R90"/>
+<instance part="TP6" gate="G$1" x="86.36" y="109.22" smashed="yes" rot="R90">
+<attribute name="NAME" x="92.71" y="108.204" size="1.778" layer="95" rot="R180"/>
+<attribute name="TP_SIGNAL_NAME" x="88.9" y="110.49" size="1.778" layer="97" rot="R90"/>
 </instance>
 </instances>
 <busses>
@@ -16993,6 +17003,12 @@ Created by Upverter.com</description>
 <label x="81.28" y="20.32" size="1.778" layer="95"/>
 <junction x="93.98" y="20.32"/>
 </segment>
+<segment>
+<wire x1="81.28" y1="111.76" x2="81.28" y2="106.68" width="0.1524" layer="91"/>
+<pinref part="JMP2" gate="-0R" pin="1"/>
+<label x="76.2" y="111.76" size="1.778" layer="95"/>
+<junction x="81.28" y="106.68"/>
+</segment>
 </net>
 <net name="N$34" class="0">
 <segment>
@@ -17605,6 +17621,12 @@ Created by Upverter.com</description>
 <junction x="68.58" y="109.22"/>
 <label x="58.42" y="124.46" size="1.778" layer="95"/>
 </segment>
+<segment>
+<wire x1="86.36" y1="106.68" x2="86.36" y2="99.06" width="0.1524" layer="91"/>
+<pinref part="JMP2" gate="-0R" pin="3"/>
+<label x="86.36" y="99.06" size="1.778" layer="95"/>
+<junction x="86.36" y="106.68"/>
+</segment>
 </net>
 <net name="GP1" class="0">
 <segment>
@@ -17787,6 +17809,13 @@ Created by Upverter.com</description>
 <junction x="58.42" y="109.22"/>
 </segment>
 </net>
+<net name="N$6" class="0">
+<segment>
+<pinref part="JMP2" gate="-0R" pin="2"/>
+<pinref part="TP6" gate="G$1" pin="TP"/>
+<junction x="83.82" y="109.22"/>
+</segment>
+</net>
 </nets>
 </sheet>
 </sheets>
@@ -17831,8 +17860,8 @@ Created by Upverter.com</description>
 <approved hash="208,1,20.32,86.36,VDD,sup,,,,"/>
 <approved hash="208,1,7.62,30.48,VDD,sup,,,,"/>
 <approved hash="113,1,114.196,95.146,FRAME1,,,,,"/>
-<approved hash="115,1,-10.16,167.64,SCK_SIG,,,,,"/>
 <approved hash="115,1,-10.16,162.56,MOSI_SIG,,,,,"/>
+<approved hash="115,1,-10.16,167.64,SCK_SIG,,,,,"/>
 </errors>
 </schematic>
 </drawing>

@@ -20,6 +20,7 @@ extern "C" {
 #include <time.h>
 #include <hidapi/hidapi.h>
 #include <math.h>
+#include <assert.h>
 
         /*
          * debugging print enable

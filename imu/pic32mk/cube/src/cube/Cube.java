@@ -61,7 +61,7 @@ public class Cube {
             while (myReader.hasNextLine()) {
                 String line = myReader.nextLine();
                 String[] token = line.split(",");
-                double w = Double.parseDouble(token[0]);
+                double w = Double.parseDouble(token[2]);
                 double x = -Double.parseDouble(token[6]);
                 double y = -Double.parseDouble(token[7]);
                 double z = -Double.parseDouble(token[8]);
@@ -69,7 +69,7 @@ public class Cube {
                 double ay = Double.parseDouble(token[4]);
                 double az = Double.parseDouble(token[5]);
                 System.out.println(String.format("w = %+7.3f     x = %+7.3f     y = %+7.3f     z = %+7.3f", w, x, y, z));
-                Quat4d quaternion = new Quat4d(w, x, y, z);
+                Quat4d quaternion = new Quat4d((w * 0.05), x, y, z);
                 Vector3d vector = new Vector3d((ax * 0.02), (ay * 0.02), (az * 0.02));
                 transformGroup.setTransform(new Transform3D(quaternion, vector, 1.0));
             }

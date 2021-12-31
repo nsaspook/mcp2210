@@ -14,11 +14,11 @@ static const char *build_date = __DATE__, *build_time = __TIME__;
  */
 void getAllData(sBmx160SensorData_t *magn, sBmx160SensorData_t *gyro, sBmx160SensorData_t *accel)
 {
-
 	uint8_t data[23] = {0};
 	int16_t x = 0, y = 0, z = 0;
+
 	// put your main code here, to run repeatedly:
-	move_bmx160_transfer(data);
+	move_bmx160_transfer_data(data);
 	//    readReg(BMX160_MAG_DATA_ADDR, data, 23);
 	if (magn) {
 		x = (int16_t) (((uint16_t) data[1] << 8) | data[0]);

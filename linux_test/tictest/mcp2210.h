@@ -64,11 +64,11 @@ extern "C" {
                 uint8_t buf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
                 uint8_t rbuf[RESPONSE_BUFFER_LENGTH]; // response buffer
                 int32_t res; // # of bytes sent from hid_read(), hid_write() functions
-                uint8_t offbuf[COMMAND_BUFFER_LENGTH]; // command buffer written to MCP2210
         } mcp2210_spi_type;
 
         void cbufs();
         int32_t SendUSBCmd(hid_device *, uint8_t *, uint8_t *);
+        int32_t get_usb_res(void);
         void sleep_us(const uint32_t);
         bool get_MCP2210_ext_interrupt(void);
         int32_t cancel_spi_transfer(void);
@@ -79,7 +79,8 @@ extern "C" {
         void setup_bmx160_transfer(uint8_t);
         void get_bmx160_transfer(void);
         void show_bmx160_transfer(void);
-        void move_bmx160_transfer(uint8_t *);
+        void move_bmx160_transfer_data(uint8_t *);
+        void move_bmx160_transfer_status(uint8_t *);
         uint8_t bmx160_get(uint8_t, uint8_t);
         uint8_t bmx160_set(uint8_t, uint8_t);
         void bmx160_update(void);

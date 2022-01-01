@@ -263,6 +263,26 @@ uint8_t bmx160_set(uint8_t set_data, uint8_t addr)
 }
 
 /*
+ * write SPI data to 3 BMX160 registers
+ */
+uint8_t bmx160_set3(uint8_t *set_data, uint8_t addr)
+{
+	cbufs();
+	// BMX160 config
+	S->buf[0] = 0x42; // transfer SPI data command
+	S->buf[1] = 4; // no. of SPI bytes to transfer
+	S->buf[4] = addr | BMX160_W; //device address, write
+	S->buf[5] = set_data[0];
+	S->buf[6] = set_data[1];
+	S->buf[7] = set_data[2];
+	S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	while (S->rbuf[3] == SPI_STATUS_STARTED_NO_DATA_TO_RECEIVE || S->rbuf[3] == SPI_STATUS_SUCCESSFUL) {
+		S->res = SendUSBCmd(S->handle, S->buf, S->rbuf);
+	}
+	return S->rbuf[5];
+}
+
+/*
  * USB to SPI configuration for BMX160
  */
 void setup_bmx160_transfer(uint8_t nbytes)

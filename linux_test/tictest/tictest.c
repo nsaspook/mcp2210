@@ -59,6 +59,7 @@ int main(int argc, char* argv[])
 	uint8_t imu_id = 0, imu_status = 0, data_status = 0, k = 0, j = 0;
 	int16_t imu_temp_raw = 0;
 	double imu_temp_c = 0.0;
+	uint8_t data_int[3] = {0, 0, 0};
 
 	int pipefd;
 	char * myfifo = "/tmp/myfifo";
@@ -105,6 +106,14 @@ int main(int argc, char* argv[])
 		} else {
 			printf("BMX160 IMU Sensors Not Ready.\n");
 			printf("BMX160 IMU Sensors Configuration Started. Chip Power Status: %02hhX.\n", imu_status);
+
+			bmx160_set(0x88, 0x53); // enable interrupt pins, active low
+			data_int[0] = 0x04;
+			data_int[1] = 0x08;
+			bmx160_set3(data_int, 0x55); // map interrupt
+			data_int[0] = 0x00;
+			data_int[1] = 0x10;
+			bmx160_set3(data_int, 0x50); // enable data interrupt
 			bmx160_set(0b00001000, 0x40);
 			bmx160_set(BMX160_CMD_ACCEL_PM_NORMAL, BMX160_REG_CMD);
 			sleep_us(us_5ms);
@@ -178,14 +187,13 @@ int main(int argc, char* argv[])
 	if ((imu_id == BMX160_ID) && ((imu_status == BMX160_ALL_PM_NORMAL) || (imu_status == BMX160_ALL_PM_OK))) {
 		do {
 			sleep_us(fspeed);
-			//			setup_bmx160_transfer(24); // 24 byte transfer, address and 23 data registers
 			bmx160_get(BMX160_DATA_LEN, BMX160_DATA_REG);
 			getAllData(&magn, &gyro, &accel);
 			move_bmx160_transfer_status(stat_buf);
 			imu_temp_raw = stat_buf[5] + (stat_buf[6] << 8); // bmx160 chip temp to int16_t
 			imu_temp_c = ((double) imu_temp_raw * BMX160_TEMP_SCALAR) + 23.0; // bmx160 chip temp to C
-			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f  %02hhX %5.2fC %i \r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z,
-				data_status, imu_temp_c, get_usb_res());
+			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f  %02hhX %5.2fC %02hhX \r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z,
+				data_status, imu_temp_c, stat_buf[2]);
 			/* Write to the pipe */
 			snprintf(fifo_buf, 255, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
 			write(pipefd, fifo_buf, sizeof(fifo_buf));
@@ -213,7 +221,7 @@ int main(int argc, char* argv[])
 				 * look for switch 0 changes for led speeds
 				 */
 				do_switch_state();
-				printf("tic12400_init value %X , status %X \n", tic12400_value, tic12400_status);
+				printf("tic12400 switch value %X , status %X \n", tic12400_value, tic12400_status);
 				setup_bmx160_transfer(BMX160_DATA_LEN); // byte transfer, address and data registers
 			} else {
 				//+				fspeed = abs((int32_t) (magn.z * 1000.0));

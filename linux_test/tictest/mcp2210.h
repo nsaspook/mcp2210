@@ -83,6 +83,7 @@ extern "C" {
         void move_bmx160_transfer_status(uint8_t *);
         uint8_t bmx160_get(uint8_t, uint8_t);
         uint8_t bmx160_set(uint8_t, uint8_t);
+        uint8_t bmx160_set3(uint8_t *, uint8_t);
         void bmx160_update(void);
         void mc33996_init(void);
         bool mc33996_check(void);

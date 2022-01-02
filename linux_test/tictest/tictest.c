@@ -106,14 +106,13 @@ int main(int argc, char* argv[])
 		} else {
 			printf("BMX160 IMU Sensors Not Ready.\n");
 			printf("BMX160 IMU Sensors Configuration Started. Chip Power Status: %02hhX.\n", imu_status);
-
+			data_int[0] = 0x00;
+			data_int[1] = 0x10;
+			bmx160_set3(data_int, 0x50); // enable data interrupt
 			bmx160_set(0x88, 0x53); // enable interrupt pins, active low
 			data_int[0] = 0x04;
 			data_int[1] = 0x08;
 			bmx160_set3(data_int, 0x55); // map interrupt
-			data_int[0] = 0x00;
-			data_int[1] = 0x10;
-			bmx160_set3(data_int, 0x50); // enable data interrupt
 			bmx160_set(0b00001000, 0x40);
 			bmx160_set(BMX160_CMD_ACCEL_PM_NORMAL, BMX160_REG_CMD);
 			sleep_us(us_5ms);

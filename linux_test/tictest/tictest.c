@@ -197,17 +197,18 @@ int main(int argc, char* argv[])
 			snprintf(fifo_buf, 255, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
 			write(pipefd, fifo_buf, sizeof(fifo_buf));
 			/*
-			 * handle the MC33966 chip MCP2210 SPI setting
-			 */
-			//			setup_mc33996_transfer(3);
-			/*
-			 * send data to the output ports
-			 */
-			//			mc33996_set(mc33996_control, led_pattern[k & 0x0f], led_pattern[j & 0x0f]);
-			/*
 			 * check for change in MCP2210 interrupt counter
 			 */
 			if (get_MCP2210_ext_interrupt()) {
+				/*
+				 * handle the MC33966 chip MCP2210 SPI setting
+				 */
+				setup_mc33996_transfer(3);
+				/*
+				 * send data to the output ports
+				 */
+				mc33996_set(mc33996_control, led_pattern[k & 0x0f], led_pattern[j & 0x0f]);
+
 				/*
 				 * handle the TIC12400 chip MCP2210 SPI setting
 				 */
@@ -219,14 +220,14 @@ int main(int argc, char* argv[])
 				/*
 				 * look for switch 0 changes for led speeds
 				 */
-				do_switch_state();
+				//				do_switch_state();
 				printf("tic12400 switch value %X , status %X \n", tic12400_value, tic12400_status);
 				setup_bmx160_transfer(BMX160_DATA_LEN); // byte transfer, address and data registers
+				k++;
+				j--;
 			} else {
 				//+				fspeed = abs((int32_t) (magn.z * 1000.0));
 			}
-			k++;
-			j--;
 		} while (true);
 	}
 

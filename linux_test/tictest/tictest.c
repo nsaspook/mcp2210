@@ -29,7 +29,7 @@
 uint32_t fspeed = 20000; // led movement speed
 sBmx160SensorData_t magn, gyro, accel;
 static const char *build_date = __DATE__, *build_time = __TIME__;
-static char fifo_buf[256];
+static char fifo_buf[256],log_buf[256];
 static uint8_t stat_buf[16];
 
 const uint8_t led_pattern[0x10] = {
@@ -61,8 +61,9 @@ int main(int argc, char* argv[])
 	double imu_temp_c = 0.0;
 	uint8_t data_int[3] = {0, 0, 0};
 
-	int pipefd;
+	int pipefd, logfd;
 	char * myfifo = "/tmp/myfifo";
+	char * mylog = "/tmp/drop.csv";
 
 	printf("\r--- MCP2210 USB To SPI Testing Version %s %s %s ---\r\n", MCP2210_VERSION, build_date, build_time);
 	/*
@@ -90,6 +91,7 @@ int main(int argc, char* argv[])
 	mkfifo(myfifo, 0777);
 	/* Open the pipe. Just like you open a file */
 	pipefd = open(myfifo, O_RDWR);
+	logfd = open(mylog, O_RDWR);
 
 	/*
 	 * BMX160 IMU in SPI mode 3 testing
@@ -196,6 +198,8 @@ int main(int argc, char* argv[])
 			/* Write to the pipe */
 			snprintf(fifo_buf, 255, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
 			write(pipefd, fifo_buf, sizeof(fifo_buf));
+			snprintf(log_buf, 255, "%7.3f,%7.3f,%7.3f\r\n", accel.x, accel.y, accel.z);
+			write(logfd, log_buf, strlen(log_buf));
 			/*
 			 * check for change in MCP2210 interrupt counter
 			 */

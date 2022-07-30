@@ -8,6 +8,7 @@
 float accelRange = BMX160_ACCEL_MG_LSB_2G * 9.8;
 float gyroRange = BMX160_GYRO_SENSITIVITY_250DPS;
 static const char *build_date = __DATE__, *build_time = __TIME__;
+static uint32_t sensortime;
 
 /*
  * read raw data array and convert to usable vector data for each sensor
@@ -20,6 +21,7 @@ void getAllData(sBmx160SensorData_t *magn, sBmx160SensorData_t *gyro, sBmx160Sen
 	// put your main code here, to run repeatedly:
 	move_bmx160_transfer_data(data);
 	//    readReg(BMX160_MAG_DATA_ADDR, data, 23);
+	sensortime = (data[22] << 16) | (data[21] << 8) | data[20];
 	if (magn) {
 		x = (int16_t) (((uint16_t) data[1] << 8) | data[0]);
 		y = (int16_t) (((uint16_t) data[3] << 8) | data[2]);
@@ -27,6 +29,7 @@ void getAllData(sBmx160SensorData_t *magn, sBmx160SensorData_t *gyro, sBmx160Sen
 		magn->x = x * BMX160_MAGN_UT_LSB;
 		magn->y = y * BMX160_MAGN_UT_LSB;
 		magn->z = z * BMX160_MAGN_UT_LSB;
+		magn->sensortime = sensortime;
 	}
 	if (gyro) {
 		x = (int16_t) (((uint16_t) data[9] << 8) | data[8]);
@@ -35,6 +38,7 @@ void getAllData(sBmx160SensorData_t *magn, sBmx160SensorData_t *gyro, sBmx160Sen
 		gyro->x = x * gyroRange;
 		gyro->y = y * gyroRange;
 		gyro->z = z * gyroRange;
+		gyro->sensortime = sensortime;
 	}
 	if (accel) {
 		x = (int16_t) (((uint16_t) data[15] << 8) | data[14]);
@@ -43,6 +47,7 @@ void getAllData(sBmx160SensorData_t *magn, sBmx160SensorData_t *gyro, sBmx160Sen
 		accel->x = x * accelRange;
 		accel->y = y * accelRange;
 		accel->z = z * accelRange;
+		accel->sensortime = sensortime;
 	}
 }
 

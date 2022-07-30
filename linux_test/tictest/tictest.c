@@ -193,8 +193,8 @@ int main(int argc, char* argv[])
 			move_bmx160_transfer_status(stat_buf);
 			imu_temp_raw = stat_buf[5] + (stat_buf[6] << 8); // bmx160 chip temp to int16_t
 			imu_temp_c = ((double) imu_temp_raw * BMX160_TEMP_SCALAR) + 23.0; // bmx160 chip temp to C
-			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f  %02hhX %5.2fC %02hhX \r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z,
-				data_status, imu_temp_c, stat_buf[2]);
+			printf("\rBMX160 IMU: M %7.3f %7.3f %7.3f, G %7.3f %7.3f %7.3f, A %7.3f %7.3f %7.3f  %02hhX %5.2fC %02hhX %lu\r", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z,
+				data_status, imu_temp_c, stat_buf[2],accel.sensortime);
 			/* Write to the pipe */
 			snprintf(fifo_buf, 255, "%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f,%7.3f\n", magn.x, magn.y, magn.z, gyro.x, gyro.y, gyro.z, accel.x, accel.y, accel.z);
 			write(pipefd, fifo_buf, sizeof(fifo_buf));
